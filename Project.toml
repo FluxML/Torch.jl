@@ -1,4 +1,4 @@
-name = "ATen"
+name = "Torch"
 uuid = "6a2ea274-3061-11ea-0d63-ff850051a295"
 authors = ["dhairyagandhi96 "]
 version = "0.1.0"
