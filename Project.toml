@@ -1,0 +1,16 @@
+name = "ATen"
+uuid = "6a2ea274-3061-11ea-0d63-ff850051a295"
+authors = ["dhairyagandhi96 "]
+version = "0.1.0"
+
+[deps]
+Clang = "40e3b903-d033-50b4-a0cc-940c62c95e31"
+Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+NNlib = "872c559c-99b0-510c-b3b7-b6c96a88d5cd"
+YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
+
+[compat]
+Clang = "0.9"
+NNlib = "0.6"
+YAML = "0.3"
+julia = "1.3"
