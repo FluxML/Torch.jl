@@ -7,8 +7,8 @@ using Clang
 
 # include("wrap2.jl")
 
-include("libtorch_common.jl")
-include("libdoeye_caml_generated.jl")
+include("wrap/libtorch_common.jl")
+include("wrap/libdoeye_caml_generated.jl")
 
 include("tensor.jl")
 include("ops.jl")
