@@ -2,16 +2,10 @@ import Base: +, -, *, /
 
 for (op,fn) in zip((:+, :-, :/, :*), (atg_add, atg_sub, atg_div, atg_matmul))
   @eval function $op(t1::Tensor{T,N}, t2::Tensor{T,K}) where {T,N,K}
-    o = Ref(Ptr{Cvoid}())
-    po = [o.x]
-    ppo = pointer(po)
+    ptr = Ref(Ptr{Cvoid}())
 
-    # @show "ew"  
-    # @show size(t1), size(t2)
-    # global gt1 = t1
-    # global gt2 = t2
-    $fn(ppo, t1.ptr, t2.ptr)
-    Tensor{T,N}(po[1], on(t1))
+    $fn(ptr, t1.ptr, t2.ptr)
+    Tensor{T,N}(ptr[], on(t1))
   end
 end
 
@@ -22,22 +16,49 @@ function conv2d(input::Tensor{T}, filter::Tensor{T,N}, bias::Tensor{T};
 		dilation = [1],
 		groups = 1) where {T,N}
 
-  po = [Ptr{Cvoid}()]
-  ppo = pointer(po)
+  ptr = Ref(Ptr{Cvoid}())
 
-  atg_conv2d(ppo, input.ptr, filter.ptr, bias.ptr,
+  atg_conv2d(ptr, input.ptr, filter.ptr, bias.ptr,
                 stride, length(stride),
                 padding, length(padding),
                 dilation, length(dilation),
                 groups)
 
-  Tensor{T,N}(po[1], on(input))
+  Tensor{T,N}(ptr[], on(input))
 end
 
-function softmax(input::Tensor{T,N}, dims = 1, dtype = options[T]) where {T,N}
-  po = [Ptr{Cvoid}()]
-  ppo = pointer(po)
+function _softmax(input::Tensor{T,N}, dims = 1, dtype = options[T]) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
 
-  atg_softmax(ppo, input.ptr, dims - 1, dtype)
-  Tensor{T,N}(po[1], on(input))
+  atg_softmax(ptr, input.ptr, dims - 1, dtype)
+  Tensor{T,N}(ptr[], on(input))
+end
+
+function _meanpool(t::Tensor{T,N}, k, s, p, op_sz) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+
+  atg_avg_pool2d(ptr, t.ptr,
+                 k, length(k),
+                 s, length(s),
+                 p, length(p),
+                 0,                # ceil_mode
+                 1,                # count_include_pad
+                 1   # divisor_override
+  )
+
+  Tensor{T,N}(ptr[], on(t))
+end
+
+function _maxpool(t::Tensor{T,N}, k, s, p, d, op_sz) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+
+  atg_max_pool2d(ptr, t.ptr,
+                 k, length(k),
+                 s, length(s),
+                 p, length(p),
+                 d, length(d),
+                 0,                # ceil_mode
+  )
+
+  Tensor{T,N}(ptr[], on(t))
 end

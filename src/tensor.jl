@@ -16,23 +16,25 @@ TensorMatrix{T} = Tensor{T, 2}
 TensorVecOrMat{T} = Union{TensorVector{T}, TensorMatrix{T}}
 
 function Tensor(::Type{T}, sz::Int...; dev = :cpu) where T
-  o = Ref(Ptr{Cvoid}())
-  po = [o.x]
-  ppo = pointer(po)
+  ptr = Ref(Ptr{Cvoid}())
   dtype = options[T]
   sz = reverse(collect(sz))
-  sz = length(sz) == 1 ? [1; sz] : sz
+  # sz = length(sz) == 1 ? [1; sz] : sz
   mem = device[dev]
   d = Ref(pointer(sz))
   len = length(sz)
 
   # atg_rand
-  atg_zeros(ppo, d.x, len, dtype, mem)
-  Tensor{T, len}(po[1], dev)
+  atg_zeros(ptr, d.x, len, dtype, mem)
+  Tensor{T, len}(ptr[], dev)
 end
 
 Tensor(sz::Int...; dev = :cpu) = Tensor(Float32, sz..., dev = dev)
 Tensor(sz::Int; dev = :cpu) = Tensor(Float32, Int(sz), dev = dev)
+
+# function Tensor{T,N}(ptr::Ptr) where {T,N}
+#   Tensor{T,N}(ptr, on(ptr))
+# end
 
 function Base.size(t::Tensor)
   dims = at_dim(t.ptr)
@@ -67,8 +69,9 @@ end
 Base.similar(t::Tensor{T,N}) where {T,N} = Tensor(T,size(t)..., dev = on(t))
 Base.similar(t::Tensor{T,N}, sz::Int...) where {T,N} = similar(t, T, sz..., dev = on(t))
 
-function Base.copy(t::Tensor{T}) where T
-  z = zeros(T, reverse(size(t))...)
+function Base.copy(t::Tensor{T,N}) where {T,N}
+  sz = size(t)
+  z = zeros(T, sz...)
   copyto!(z, t)
 end
 
@@ -78,107 +81,61 @@ function Base.copyto!(dest::AbstractArray, src::Tensor)
 end
 
 function Base.reshape(t::Tensor{T,N}, dims::Union{Colon, Int}...) where {T,N}
-  o = Ref(Ptr{Cvoid}())
-  po = [o.x]
-  ppo = pointer(po)
+  ptr = Ref(Ptr{Cvoid}())
 
-  # @show size(t)
-  # @show dims
   dims = Colon() in dims ? Base._reshape_uncolon(t, dims) : dims
   dims = reverse(collect(dims))
-  d = Ref(pointer(dims))
-  atg_reshape(ppo, t.ptr, d.x, length(dims))
-  Tensor{T,length(dims)}(po[1], on(t))
-end
-
-function Base.reshape(t::Tensor{T,N}, dims::Int...) where {T,N}
-  o = Ref(Ptr{Cvoid}())
-  po = [o.x]
-  ppo = pointer(po)
-
-  dims = reverse(collect(dims))
-  d = Ref(pointer(dims))
-  atg_reshape(ppo, t.ptr, d.x, length(dims))
-  Tensor{T,length(dims)}(po[1], on(t))
+  atg_reshape(ptr, t.ptr, dims, length(dims))
+  Tensor{T,length(dims)}(ptr[], on(t))
 end
 
 function Base.zero(t::Tensor{T,N}) where {T, N}
-  o = Ref(Ptr{Cvoid}())
-  po = [o.x]
-  ppo = pointer(po)
+  ptr = Ref(Ptr{Cvoid}())
 
-  atg_zeros_like(ppo, t.ptr)
-  Tensor{T, N}(po[1], on(t))
+  atg_zeros_like(ptr, t.ptr)
+  Tensor{T, N}(ptr[], on(t))
 end
 
 function Base.rand(::Type{Tensor{T}}, sz::Int...; dev = :cpu) where T <: Real
-  o = Ref(Ptr{Cvoid}())
-  po = [o.x]
-  ppo = pointer(po)
+
+  ptr = Ref(Ptr{Cvoid}())
   dtype = options[T]
   sz = collect(sz)
   mem = device[dev]
-  d = Ref(pointer(sz))
   len = length(sz)
 
   # atg_rand
-  atg_rand(ppo, d.x, len, dtype, mem)
-  Tensor{T, len}(po[1], dev)
+  atg_rand(ptr, sz, len, dtype, mem)
+  Tensor{T, len}(ptr[], dev)
 end
 
 Base.zeros(::Type{Tensor{T}}, sz::Int...; dev = :cpu) where T =
   Tensor(T, sz..., dev = dev)
 
 function tensor(x::AbstractArray{T,N}; dev = :cpu) where {T,N}
-  o = Ref(Ptr{Cvoid}())
-  po = [o.x]
-  ppo = pointer(po)
 
   sz = if N == 2
     collect(size(x))
-  elseif N == 1
-    reverse([1;collect(size(x))])
   else
     collect(size(x)) |> reverse
   end
   @info sz
-  d = Ref(pointer(sz))
+  # d = Ref(pointer(sz))
   el_sz_in_bytes = sizeof(eltype(x))
   nd = ndims(x)
   typ = options[T] 
   parr = Ref(pointer(x))
 
-  op = at_tensor_of_data(parr.x, d.x, nd, el_sz_in_bytes, typ)
+  op = at_tensor_of_data(parr.x, d, nd, el_sz_in_bytes, typ)
   opt = Tensor{Float32, N}(op, dev)
   opt = to(opt, dev = dev)
 end
 # tensor(x) = x
 
-# function tensor(x::AbstractVector{T}; dev = :cpu) where T
-#   o = Ref(Ptr{Cvoid}())
-#   po = [o.x]
-#   ppo = pointer(po)
-# 
-#   sz = collect(size(x))
-#   sz = reverse([sz; 1])
-#   d = Ref(pointer(sz))
-#   el_sz_in_bytes = sizeof(T)
-#   nd = 1
-#   typ = options[T]
-#   parr = Ref(pointer(x))
-# 
-#   op = at_tensor_of_data(parr.x, d.x, nd, el_sz_in_bytes, typ)
-#   opt = Tensor{Float32, 1}(op, dev)
-#   opt = to(opt, dev = dev)
-# end
-
 function to(x::Tensor{T,N}; dev = :cpu) where {T,N}
-  o = Ref(Ptr{Cvoid}())
-  po = [o.x]
-  ppo = pointer(po)
-
-  atg_to(ppo, x.ptr, device[dev])
-  Tensor{Float32,N}(po[1], dev)
+  ptr = Ref(Ptr{Cvoid}())
+  atg_to(ptr, x.ptr, device[dev])
+  Tensor{Float32,N}(ptr[], dev)
 end
 
 on(t::Tensor) = t.device

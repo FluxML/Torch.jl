@@ -1,5 +1,6 @@
 using NNlib
 using NNlib: expand
+using NNlib: PoolDims
 
 import NNlib: conv
 
@@ -8,8 +9,6 @@ function NNlib.conv(x::Tensor{xT, N}, w::Tensor{T,N}, b::Tensor{T}, cdims::Dense
   pad = expand(Val(N-2), pad)
   dilation = expand(Val(N-2), dilation)
   op = conv2d(x, w, b, stride = collect(stride), padding = collect(pad), dilation = collect(dilation))
-  # free!(tx)
-  # free!(b)
   op
 end
 
@@ -30,13 +29,31 @@ function NNlib.conv(x::Array{xT, N}, w::Tensor{T,N}, cdims::DenseConvDims; strid
 end
 
 function NNlib.relu(t::Tensor{T,N}) where {T,N}
-  po = [Ptr{Cvoid}()]
-  ppo = pointer(po)
+  ptr = Ref(Ptr{Cvoid}())
 
-  atg_relu(ppo, t.ptr)
-  Tensor{T,N}(po[1], on(t))
+  atg_relu(ptr, t.ptr)
+  Tensor{T,N}(ptr[], on(t))
 end
 
 function NNlib.softmax(t::Tensor{T,N}; dims = 1) where {T,N}
-  softmax(t, dims, options[T])
+  _softmax(t, dims, options[T])
+end
+
+function NNlib.meanpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}) where {N,K,S,P,D}
+  ks = collect(NNlib.kernel_size(pdims))
+  stride = collect(S)
+  pad = [P[1];P[3]]
+  op_sz = NNlib.output_size(pdims)
+
+  _meanpool(t, ks, stride, pad, op_sz)
+end
+
+function NNlib.maxpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}) where {N,K,S,P,D}
+  ks = collect(NNlib.kernel_size(pdims))
+  stride = collect(S)
+  pad = [P[1];P[3]]
+  dilation = collect(D)
+  op_sz = NNlib.output_size(pdims)
+
+  _maxpool(t, ks, stride, pad, dilation, op_sz)
 end
