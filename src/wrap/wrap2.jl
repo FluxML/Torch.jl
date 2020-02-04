@@ -1,7 +1,6 @@
 using Clang
 
 const LIBTORCH_INCLUDE = joinpath(PATH) |> normpath
-# const LIBTORCH_HEADERS = [joinpath(LIBTORCH_INCLUDE, header) for header in readdir(LIBTORCH_INCLUDE) if endswith(header, ".h")]
 const LIBTORCH_HEADERS = ["/home/dhairyagandhi96/temp/aten/torch_cpp/ocaml-torch/src/wrapper/torch_api.h"] 
 
 hs = ["/home/dhairyagandhi96/temp/aten/torch_cpp/ocaml-torch/src/wrapper/torch_api.h",
