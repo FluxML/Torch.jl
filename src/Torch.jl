@@ -12,6 +12,7 @@ include("wrap/libdoeye_caml_generated.jl")
 
 include("tensor.jl")
 include("ops.jl")
+include("statistics.jl")
 include("nnlib.jl")
 include("broadcast.jl")
 
