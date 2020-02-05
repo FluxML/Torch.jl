@@ -62,3 +62,10 @@ function _maxpool(t::Tensor{T,N}, k, s, p, d, op_sz) where {T,N}
 
   Tensor{T,N}(ptr[], on(t))
 end
+
+function Base.cos(input::Tensor{T,N}) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+
+  atg_cos(ppo, input.ptr)
+  Tensor{T,N}(ptr[], on(input))
+end
