@@ -1,6 +1,7 @@
 options = Dict(
   Float32 => 6,
-  Int64 => 4)
+  Int64 => 4,
+  Float64 => 7,)
 
 device = Dict(
   :gpu => 0,
