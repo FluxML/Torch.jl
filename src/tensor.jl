@@ -120,14 +120,12 @@ function tensor(x::AbstractArray{T,N}; dev = :cpu) where {T,N}
   else
     collect(size(x)) |> reverse
   end
-  @info sz
-  # d = Ref(pointer(sz))
   el_sz_in_bytes = sizeof(eltype(x))
   nd = ndims(x)
   typ = options[T] 
   parr = Ref(pointer(x))
 
-  op = at_tensor_of_data(parr.x, d, nd, el_sz_in_bytes, typ)
+  op = at_tensor_of_data(parr.x, sz, nd, el_sz_in_bytes, typ)
   opt = Tensor{Float32, N}(op, dev)
   opt = to(opt, dev = dev)
 end
