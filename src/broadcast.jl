@@ -6,9 +6,15 @@ import Base.Broadcast: broadcasted
 
 for op in (:+, :-, :*, :/)
   @eval function broadcasted(::typeof($op), t1::Tensor{T}, t2::Tensor{T}) where T
-    # @show size(t1), size(t2)
     $op(t1, t2)
   end
 end
 
 broadcasted(::typeof(NNlib.relu), t::Tensor) = NNlib.relu(t)
+broadcasted(::typeof(identity), t::Tensor) = identity(t)
+
+for op in (:+, :-, :*, :/)
+  @eval function broadcasted(::typeof($op), t::Tensor, args...)
+    $op(t, args...)
+  end
+end
