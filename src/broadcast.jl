@@ -12,4 +12,3 @@ for op in (:+, :-, :*, :/)
 end
 
 broadcasted(::typeof(NNlib.relu), t::Tensor) = NNlib.relu(t)
-broadcasted(::typeof(f), t::Tensor, args...; kwargs...) where f = f(t, args...; kwargs...)
