@@ -4,8 +4,8 @@
 import Base.Broadcast
 import Base.Broadcast: broadcasted
 
-for op in (:+, :-, :*, :/)
-  @eval function broadcasted(::typeof($op), t1::Tensor{T}, t2::Tensor{T}) where T
+for op in (:+, :-, :/)
+  @eval function broadcasted(::typeof($op), t1::Tensor, t2::Tensor)
     $op(t1, t2)
   end
 end
@@ -25,3 +25,5 @@ for op in (:+, :-, :*, :/)
     $op(t, args...)
   end
 end
+
+broadcasted(::typeof(sqrt), t::Tensor) = sqrt(t)
