@@ -57,7 +57,7 @@ function _meanpool(t::Tensor{T,N}, k, s, p, op_sz) where {T,N}
                  p, length(p),
                  0,                # ceil_mode
                  1,                # count_include_pad
-                 1   # divisor_override
+                 1                 # divisor_override
   )
 
   Tensor{T,N}(ptr[], on(t))
