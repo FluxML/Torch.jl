@@ -10,6 +10,13 @@ for op in (:+, :-, :*, :/)
   end
 end
 
+function broadcasted(::typeof(*), t1::Tensor{T,N}, t2::Tensor) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+
+  atg_mul(ptr, t1.ptr, t2.ptr)
+  Tensor{T,N}(ptr[], on(t1))
+end
+
 broadcasted(::typeof(NNlib.relu), t::Tensor) = NNlib.relu(t)
 broadcasted(::typeof(identity), t::Tensor) = identity(t)
 
