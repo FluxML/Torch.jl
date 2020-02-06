@@ -4,17 +4,17 @@
 import Base.Broadcast
 import Base.Broadcast: broadcasted
 
-for op in (:+, :-, :/)
+for op in (:-, :/)
   @eval function broadcasted(::typeof($op), t1::Tensor, t2::Tensor)
     $op(t1, t2)
   end
 end
 
-function broadcasted(::typeof(*), t1::Tensor{T,N}, t2::Tensor) where {T,N}
+function broadcasted(::typeof(*), t1::Tensor{T,4}, t2::Tensor) where {T}
   ptr = Ref(Ptr{Cvoid}())
 
   atg_mul(ptr, t1.ptr, t2.ptr)
-  Tensor{T,N}(ptr[], on(t1))
+  Tensor{T,4}(ptr[], on(t1))
 end
 
 broadcasted(::typeof(NNlib.relu), t::Tensor) = NNlib.relu(t)
@@ -27,3 +27,11 @@ for op in (:+, :-, :*, :/)
 end
 
 broadcasted(::typeof(sqrt), t::Tensor) = sqrt(t)
+
+function broadcasted(::typeof(copy), t::Tensor{T,N}) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+
+  atg_clone(ptr, t.ptr)
+  Tensor{T,N}(ptr[], on(t))
+
+end
