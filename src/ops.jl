@@ -26,7 +26,7 @@ end
 # TODO: Use a macro to generate wrappers
 function conv2d(input::Tensor{T}, filter::Tensor{T,N}, bias::Tensor{T};
 		stride = [1],
-		padding = [1],
+		padding = [0],
 		dilation = [1],
 		groups = 1) where {T,N}
 
