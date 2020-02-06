@@ -13,7 +13,9 @@ for op in (:+, :-, :/, :*)
   @eval function $op(t::Tensor{T,N}, r::S) where {T,N,S <: Real}
     i = T[r]
     t2 = tensor(i, dev = on(t))
-    $op(t, t2)
+    res = $op(t, t2)
+    free!(t2)
+    res
   end
 end
 
@@ -59,7 +61,6 @@ function _meanpool(t::Tensor{T,N}, k, s, p, op_sz) where {T,N}
                  1,                # count_include_pad
                  1                 # divisor_override
   )
-
   Tensor{T,N}(ptr[], on(t))
 end
 
@@ -73,7 +74,6 @@ function _maxpool(t::Tensor{T,N}, k, s, p, d, op_sz) where {T,N}
                  d, length(d),
                  0,                # ceil_mode
   )
-
   Tensor{T,N}(ptr[], on(t))
 end
 
