@@ -9,6 +9,20 @@ for (op,fn) in zip((:+, :-, :/, :*), (atg_add, atg_sub, atg_div, atg_matmul))
   end
 end
 
+for op in (:+, :-, :/, :*)
+  @eval function $op(t::Tensor{T,N}, r::S) where {T,N,S <: Real}
+    i = T[r]
+    t2 = tensor(i, dev = on(t))
+    $op(t, t2)
+  end
+end
+
+function Base.sqrt(t::Tensor{T,N}) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+  atg_sqrt(ptr, t.ptr)
+  Tensor{T,N}(ptr[], on(t))
+end
+
 # TODO: Use a macro to generate wrappers
 function conv2d(input::Tensor{T}, filter::Tensor{T,N}, bias::Tensor{T};
 		stride = [1],
