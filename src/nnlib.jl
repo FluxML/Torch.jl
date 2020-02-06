@@ -16,15 +16,6 @@ function NNlib.conv(x::Tensor, w::Tensor, cdims::DenseConvDims; stride = 1, pad 
   op
 end
 
-function NNlib.conv(x::Array{xT, N}, w::Tensor{T,N}, cdims::DenseConvDims; stride = 1, pad = 0, dilation = 1) where {T,N, xT}
-  tx = tensor(x, dev = :gpu)
-  b = zeros(Tensor{Float32}, size(w)[end], dev = :gpu)
-  op = NNlib.conv(tx, w, b, cdims, stride = stride, pad = pad, dilation = dilation)
-  free!(tx)
-  free!(b)
-  op
-end
-
 function NNlib.relu(t::Tensor{T,N}) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
 
