@@ -13,8 +13,9 @@ for op in (:+, :-, :/, :*)
   @eval function $op(t::Tensor{T,N}, r::S) where {T,N,S <: Real}
     i = T[r]
     t2 = tensor(i, dev = on(t))
+    # s = Scalar(r; dev = on(t))
     res = $op(t, t2)
-    free!(t2)
+    # free!(s)
     res
   end
 end
@@ -23,6 +24,7 @@ function Base.sqrt(t::Tensor{T,N}) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
   atg_sqrt(ptr, t.ptr)
   Tensor{T,N}(ptr[], on(t))
+  # t
 end
 
 # TODO: Use a macro to generate wrappers

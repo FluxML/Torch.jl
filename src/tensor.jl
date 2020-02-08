@@ -7,10 +7,32 @@ device = Dict(
   :gpu => 0,
   :cpu => -1)
 
-struct Tensor{T, N} <: AbstractArray{T,N}
+if TURN_ON_LOGGING
+  logdict = Dict()
+end
+logdict = Dict()
+
+async_free!(x) = let x = x, ptr = x.ptr, oid = objectid(x)
+  @async begin
+    # println("GC'ing from my finalizer: {ptr: $ptr, oid: $oid}")
+    free!(x)
+  end
+  return
+end
+
+mutable struct Tensor{T, N} <: AbstractArray{T,N}
   ptr::Ptr{Cvoid}
   device::Symbol
+
+  function Tensor{T,N}(ptr::Ptr, dev::Symbol) where {T,N}
+    obj = new(ptr, dev)
+    # println("in finalised constructor")
+    finalizer(async_free!, obj)
+    # TURN_ON_LOGGING == true && (logdict[ptr] = stacktrace())
+    obj
+  end
 end
+
 TensorVector{T} = Tensor{T, 1}
 TensorMatrix{T} = Tensor{T, 2}
 TensorVecOrMat{T} = Union{TensorVector{T}, TensorMatrix{T}}
@@ -19,7 +41,6 @@ function Tensor(::Type{T}, sz::Int...; dev = :cpu) where T
   ptr = Ref(Ptr{Cvoid}())
   dtype = options[T]
   sz = reverse(collect(sz))
-  # sz = length(sz) == 1 ? [sz;1] : sz
   mem = device[dev]
   d = Ref(pointer(sz))
   len = length(sz)
@@ -75,7 +96,6 @@ end
 
 function Base.copyto!(dest::AbstractArray, src::Tensor)
   at_copy_data(src.ptr, dest, length(dest), sizeof(eltype(dest)))
-  free!(src)
   dest
 end
 
@@ -86,6 +106,7 @@ function Base.reshape(t::Tensor{T,N}, dims::Union{Colon, Int}...) where {T,N}
   dims = length(dims) == 2 ? collect(dims) : reverse(collect(dims))
   atg_reshape(ptr, t.ptr, dims, length(dims))
   Tensor{T,length(dims)}(ptr[], on(t))
+  # Tensor(ptr, on(t))
 end
 
 function Base.zero(t::Tensor{T,N}) where {T, N}
@@ -128,18 +149,20 @@ function tensor(x::AbstractArray{T,N}; dev = :cpu) where {T,N}
 
   op = at_tensor_of_data(parr.x, sz, nd, el_sz_in_bytes, typ)
   opt = Tensor{Float32, N}(op, dev)
-  opt = to(opt, dev = dev)
+  to(opt, dev = dev)
 end
 # tensor(x) = x
 
 function to(x::Tensor{T,N}; dev = :cpu) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
   atg_to(ptr, x.ptr, device[dev])
-  free!(x)
   Tensor{Float32,N}(ptr[], dev)
 end
 
 on(t::Tensor) = t.device
 
-free!(t::Tensor) = at_free(t.ptr)
+function free!(t::Tensor)
+  # TURN_ON_LOGGING && delete!(logdict, t.ptr)
+  at_free(t.ptr)
+end
 free!(ptr::Ptr) = at_free(ptr)

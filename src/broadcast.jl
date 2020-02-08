@@ -2,9 +2,12 @@
 # They don't really lend themselves well to the AbstractArray interface.
 
 import Base.Broadcast
-import Base.Broadcast: broadcasted
+import Base.Broadcast: broadcasted, BroadcastStyle
 
-for op in (:-, :/)
+# struct TensorStyle <: BroadcastStyle end
+# Base.BroadcastStyle(::Type{Tensor}) = TensorStyle()
+
+for op in (:+, :-, :/)
   @eval function broadcasted(::typeof($op), t1::Tensor, t2::Tensor)
     $op(t1, t2)
   end
@@ -33,5 +36,4 @@ function broadcasted(::typeof(copy), t::Tensor{T,N}) where {T,N}
 
   atg_clone(ptr, t.ptr)
   Tensor{T,N}(ptr[], on(t))
-
 end
