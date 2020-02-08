@@ -13,6 +13,8 @@ const TURN_ON_LOGGING = true
 include("wrap/libtorch_common.jl")
 include("wrap/libdoeye_caml_generated.jl")
 
+const clear_cache = at_empty_cache
+
 include("tensor.jl")
 # include("scalar.jl")
 include("ops.jl")
