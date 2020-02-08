@@ -10,6 +10,10 @@ function at_new_tensor()
     ccall((:at_new_tensor, :libdoeye_caml), tensor, ())
 end
 
+function at_empty_cache()
+  ccall((:at_empty_cache, :libdoeye_caml), Cvoid, ())
+end
+
 function at_tensor_of_data(vs, dims, ndims, element_size_in_bytes, type_t)
     ccall((:at_tensor_of_data, :libdoeye_caml), tensor, (Ptr{Cvoid}, Ptr{Int64}, Cint, Cint, Cint), vs, dims, ndims, element_size_in_bytes, type_t)
 end
