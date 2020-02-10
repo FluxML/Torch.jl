@@ -10,6 +10,13 @@ for op in (:-, :/)
   end
 end
 
+for op in (:+, :-)
+  @eval function broadcasted(::typeof($op), t1::Tensor, t2::TensorVector)
+    t_ = reshape(t2, -1, 1)
+    $op(t1, t_)
+  end
+end
+
 function broadcasted(::typeof(*), t1::Tensor{T,4}, t2::Tensor) where {T}
   ptr = Ref(Ptr{Cvoid}())
 
