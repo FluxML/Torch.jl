@@ -12,7 +12,6 @@ end
 function NNlib.conv(x::Tensor, w::Tensor, cdims::DenseConvDims; stride = 1, pad = 0, dilation = 1)
   b = zeros(Tensor{Float32}, size(w)[end], dev = :gpu)
   op = conv(x, w, b, cdims, stride = stride, pad = pad, dilation = dilation)
-  free!(b)
   op
 end
 
