@@ -6,3 +6,4 @@ const optimizer = Ptr{Cvoid}
 const scalar = Ptr{Cvoid}
 const module_t = Ptr{Cvoid}
 const ivalue = Ptr{Cvoid}
+const ngg = Ptr{Cvoid}
