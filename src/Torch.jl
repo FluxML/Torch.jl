@@ -5,6 +5,8 @@ export Tensor, tensor
 using YAML
 using Clang
 
+TURN_ON_LOGGING = false
+
 # include("wrap2.jl")
 
 include("wrap/libtorch_common.jl")
