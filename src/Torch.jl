@@ -14,6 +14,7 @@ include("tensor.jl")
 include("ops.jl")
 include("statistics.jl")
 include("nnlib.jl")
+include("normalise.jl")
 include("broadcast.jl")
 
 end # module
