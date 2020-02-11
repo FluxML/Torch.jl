@@ -7,10 +7,38 @@ device = Dict(
   :gpu => 0,
   :cpu => -1)
 
-struct Tensor{T, N} <: AbstractArray{T,N}
+at_grad_set_enabled(0)
+
+if TURN_ON_LOGGING
+  logdict = Dict()
+end
+logdict = Dict()
+tensordict = Dict()
+
+function no_grad(f; flag = 0)
+  at_no_grad(flag)
+  f()
+end
+
+async_free!(x) = let x = x, ptr = x.ptr, oid = objectid(x)
+  @async begin
+    free!(x)
+  end
+  return
+end
+
+mutable struct Tensor{T, N} <: AbstractArray{T,N}
   ptr::Ptr{Cvoid}
   device::Symbol
+
+  function Tensor{T,N}(ptr::Ptr, dev::Symbol) where {T,N}
+    obj = new(ptr, dev)
+    finalizer(async_free!, obj)
+    TURN_ON_LOGGING == true && (logdict[ptr] = (size(obj), stacktrace()))
+    obj
+  end
 end
+
 TensorVector{T} = Tensor{T, 1}
 TensorMatrix{T} = Tensor{T, 2}
 TensorVecOrMat{T} = Union{TensorVector{T}, TensorMatrix{T}}
@@ -49,7 +77,7 @@ end
 
 function Base.size(t::Tensor, dim::Int)
   sz = size(t)
-  dim < length(sz) ? sz[dim] : 1
+  dim <= length(sz) ? sz[dim] : 1
 end
 
 Base.length(t::Tensor) = prod(size(t))
@@ -75,7 +103,6 @@ end
 
 function Base.copyto!(dest::AbstractArray, src::Tensor)
   at_copy_data(src.ptr, dest, length(dest), sizeof(eltype(dest)))
-  free!(src)
   dest
 end
 
@@ -128,18 +155,20 @@ function tensor(x::AbstractArray{T,N}; dev = :cpu) where {T,N}
 
   op = at_tensor_of_data(parr.x, sz, nd, el_sz_in_bytes, typ)
   opt = Tensor{Float32, N}(op, dev)
-  opt = to(opt, dev = dev)
+  to(opt, dev = dev)
 end
 # tensor(x) = x
 
 function to(x::Tensor{T,N}; dev = :cpu) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
   atg_to(ptr, x.ptr, device[dev])
-  free!(x)
   Tensor{Float32,N}(ptr[], dev)
 end
 
 on(t::Tensor) = t.device
 
-free!(t::Tensor) = at_free(t.ptr)
+function free!(t::Tensor)
+  # TURN_ON_LOGGING && delete!(logdict, t.ptr)
+  at_free(t.ptr)
+end
 free!(ptr::Ptr) = at_free(ptr)
