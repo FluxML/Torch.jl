@@ -14,7 +14,6 @@ for op in (:+, :-, :/, :*)
     i = T[r]
     t2 = tensor(i, dev = on(t))
     res = $op(t, t2)
-    free!(t2)
     res
   end
 end
