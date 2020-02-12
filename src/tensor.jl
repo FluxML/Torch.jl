@@ -12,8 +12,8 @@ at_grad_set_enabled(0)
 if TURN_ON_LOGGING
   logdict = Dict()
 end
-logdict = Dict()
-tensordict = Dict()
+# logdict = Dict()
+# tensordict = Dict()
 
 function no_grad(f; flag = 0)
   at_no_grad(flag)
@@ -34,7 +34,7 @@ mutable struct Tensor{T, N} <: AbstractArray{T,N}
   function Tensor{T,N}(ptr::Ptr, dev::Symbol) where {T,N}
     obj = new(ptr, dev)
     finalizer(async_free!, obj)
-    TURN_ON_LOGGING == true && (logdict[ptr] = (size(obj), stacktrace()))
+    # TURN_ON_LOGGING == true && (logdict[ptr] = (size(obj), stacktrace()))
     obj
   end
 end
@@ -168,7 +168,7 @@ end
 on(t::Tensor) = t.device
 
 function free!(t::Tensor)
-  TURN_ON_LOGGING && delete!(logdict, t.ptr)
+  # TURN_ON_LOGGING && delete!(logdict, t.ptr)
   at_free(t.ptr)
 end
 free!(ptr::Ptr) = at_free(ptr)
