@@ -18,6 +18,10 @@ function at_no_grad(flag = 0)
   ccall((:at_no_grad, :libdoeye_caml), Cint, (Cint,), flag)
 end
 
+function at_sync()
+  ccall((:at_sync, :libdoeye_caml), Cvoid, ())
+end
+
 function at_tensor_of_data(vs, dims, ndims, element_size_in_bytes, type_t)
     ccall((:at_tensor_of_data, :libdoeye_caml), tensor, (Ptr{Cvoid}, Ptr{Int64}, Cint, Cint, Cint), vs, dims, ndims, element_size_in_bytes, type_t)
 end

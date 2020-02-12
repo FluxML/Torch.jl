@@ -20,6 +20,8 @@ function no_grad(f; flag = 0)
   f()
 end
 
+sync() = at_sync()
+
 async_free!(x) = let x = x, ptr = x.ptr, oid = objectid(x)
   @async begin
     free!(x)
