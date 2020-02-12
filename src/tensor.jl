@@ -1,19 +1,13 @@
-options = Dict(
+const options = Dict(
   Float32 => 6,
   Int64 => 4,
   Float64 => 7,)
 
-device = Dict(
-  :gpu => 0,
+const device = Dict(
+  :gpu => 2,
   :cpu => -1)
 
 at_grad_set_enabled(0)
-
-if TURN_ON_LOGGING
-  logdict = Dict()
-end
-# logdict = Dict()
-# tensordict = Dict()
 
 function no_grad(f; flag = 0)
   at_no_grad(flag)

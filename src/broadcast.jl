@@ -2,9 +2,13 @@
 # They don't really lend themselves well to the AbstractArray interface.
 
 import Base.Broadcast
-import Base.Broadcast: broadcasted
+import Base.Broadcast: broadcasted, BroadcastStyle
+using Base.Broadcast: broadcast_shape
 
-for op in (:-, :/)
+# struct TensorStyle <: BroadcastStyle end
+# Base.BroadcastStyle(::Type{Tensor}) = TensorStyle()
+
+for op in (:+, :-, :/)
   @eval function broadcasted(::typeof($op), t1::Tensor, t2::Tensor)
     $op(t1, t2)
   end
@@ -36,9 +40,5 @@ end
 broadcasted(::typeof(sqrt), t::Tensor) = sqrt(t)
 
 function broadcasted(::typeof(copy), t::Tensor{T,N}) where {T,N}
-  ptr = Ref(Ptr{Cvoid}())
-
-  atg_clone(ptr, t.ptr)
-  Tensor{T,N}(ptr[], on(t))
-
+  t
 end
