@@ -168,7 +168,7 @@ end
 on(t::Tensor) = t.device
 
 function free!(t::Tensor)
-  # TURN_ON_LOGGING && delete!(logdict, t.ptr)
+  TURN_ON_LOGGING && delete!(logdict, t.ptr)
   at_free(t.ptr)
 end
 free!(ptr::Ptr) = at_free(ptr)
