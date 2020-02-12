@@ -17,7 +17,7 @@ const clear_cache = at_empty_cache
 const sync = at_sync
 
 include("tensor.jl")
-include("scalar.jl")
+# include("scalar.jl")
 include("ops.jl")
 include("statistics.jl")
 include("nnlib.jl")
