@@ -13,6 +13,7 @@ include("wrap/libtorch_common.jl")
 include("wrap/libdoeye_caml_generated.jl")
 
 include("tensor.jl")
+include("scalar.jl")
 include("ops.jl")
 include("statistics.jl")
 include("nnlib.jl")
