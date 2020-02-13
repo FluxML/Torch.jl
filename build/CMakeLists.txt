@@ -9,7 +9,7 @@ find_package(Torch REQUIRED)
 find_package(Julia REQUIRED)
 find_package(CUDA REQUIRED)
 
-include_directories(SYSTEM "/home/dhairyagandhi96/julia-1.1.0/include/julia")
+include_directories(SYSTEM ${Julia_INCLUDE_DIRS})
 include_directories(SYSTEM path)
 
 
