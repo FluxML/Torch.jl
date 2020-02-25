@@ -44,3 +44,5 @@ function NNlib.maxpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}) where {N,K,S,P,D}
 
   _maxpool(t, ks, stride, pad, dilation, op_sz)
 end
+
+include("grads.jl")
