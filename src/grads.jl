@@ -1,4 +1,4 @@
-import NNlib: ∇conv_data
+import NNlib: ∇conv_data, ∇conv_filter
 
 function cudnn_convolution_backward_bias(t::Tensor{T,N}) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
@@ -57,4 +57,27 @@ function ∇conv_filter(w::Tensor{T}, dy::Tensor{T},
                                         groups, benchmark, deterministic)
 
   Tensor{T,ndims(dy)}(ptr[], on(dy))
+end
+
+function NNlib.∇meanpool(dy::Tensor{T,M}, y::Tensor{T,M}, x::Tensor{T,M},
+                   pdims::PoolDims{N,K,S,P,D};
+                   ceil_mode = 0,
+                   count_include_pad = 1,
+                   divisor_override = 1) where {N,K,S,P,D, T,M}
+
+  ptr = Ref(Ptr{Cvoid}())
+  kernel = collect(NNlib.kernel_size(pdims))
+  stride = collect(S)
+  padding = [P[1];P[3]]
+
+  atg_avg_pool2d_backward(ptr,
+                          dy.ptr, x.ptr,
+                          kernel, length(kernel),
+                          stride, length(stride),
+                          padding, length(padding),
+                          ceil_mode,
+                          count_include_pad,
+                          divisor_override)
+
+  Tensor{T,N}(ptr[], on(x))
 end
