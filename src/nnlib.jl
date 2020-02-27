@@ -4,7 +4,9 @@ using NNlib: PoolDims
 
 import NNlib: conv
 
-function NNlib.conv(x::Tensor{xT, N}, w::Tensor{T,N}, b::Tensor{T}, cdims::DenseConvDims{M,K,C_in,C_out,S,P,D,F}; stride = 1, pad = 0, dilation = 1) where {T,N, xT,  M,K,C_in,C_out,S,P,D,F}
+function NNlib.conv(x::Tensor{xT, N}, w::Tensor{T,N}, b::Tensor{T}, cdims::DenseConvDims{M,K,C_in,C_out,S,P,D,F};
+                    stride = 1, pad = 0, dilation = 1) where {T,N, xT,  M,K,C_in,C_out,S,P,D,F}
+  
   op = conv2d(x, w, b, stride = collect(S), padding = [P[1];P[3]], dilation = collect(dilation))
   op
 end
