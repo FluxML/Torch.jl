@@ -34,9 +34,9 @@ version = "2.2.0"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "b7720de347734f4716d1815b00ce5664ed6bbfd4"
+git-tree-sha1 = "5a431d46abf2ef2a4d5d00bd0ae61f651cf854c8"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.17.9"
+version = "0.17.10"
 
 [[Dates]]
 deps = ["Printf"]
@@ -66,6 +66,12 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+
+[[MacroTools]]
+deps = ["DataStructures", "Markdown", "Random"]
+git-tree-sha1 = "07ee65e03e28ca88bc9a338a3726ae0c3efaa94b"
+uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+version = "0.5.4"
 
 [[Markdown]]
 deps = ["Base64"]
@@ -145,3 +151,9 @@ deps = ["Codecs", "Compat"]
 git-tree-sha1 = "3bde77cee95cce0c0b9b18813d85e18e8ed4f415"
 uuid = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 version = "0.3.2"
+
+[[ZygoteRules]]
+deps = ["MacroTools"]
+git-tree-sha1 = "b3b4882cc9accf6731a08cc39543fbc6b669dca8"
+uuid = "700de1a5-db45-46bc-99cf-38207098b444"
+version = "0.2.0"

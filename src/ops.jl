@@ -63,7 +63,13 @@ function _meanpool(t::Tensor{T,N}, k, s, p, op_sz) where {T,N}
   Tensor{T,N}(ptr[], on(t))
 end
 
-function _maxpool(t::Tensor{T,N}, k, s, p, d, op_sz) where {T,N}
+function _maxpool(t::Tensor{T,M}, pdims::PoolDims{N,K,S,P,D};
+                  ceil_mode = 0) where {N,K,S,P,D, T,M}
+  k = collect(NNlib.kernel_size(pdims))
+  s = collect(S)
+  p = [P[1];P[3]]
+  d = collect(D)
+
   ptr = Ref(Ptr{Cvoid}())
 
   atg_max_pool2d(ptr, t.ptr,
@@ -71,14 +77,28 @@ function _maxpool(t::Tensor{T,N}, k, s, p, d, op_sz) where {T,N}
                  s, length(s),
                  p, length(p),
                  d, length(d),
-                 0,                # ceil_mode
+                 ceil_mode,                # ceil_mode
   )
+
   Tensor{T,N}(ptr[], on(t))
 end
 
-function Base.cos(input::Tensor{T,N}) where {T,N}
-  ptr = Ref(Ptr{Cvoid}())
+function _maxpool_with_inds(t::Tensor{T,M}, pdims::PoolDims{N,K,S,P,D};
+                            ceil_mode = 0) where {N,K,S,P,D, T,M}
+  k = collect(NNlib.kernel_size(pdims))
+  s = collect(S)
+  p = [P[1];P[3]]
+  d = collect(D)
 
-  atg_cos(ppo, input.ptr)
-  Tensor{T,N}(ptr[], on(input))
+  ptr = [Ptr{Cvoid}(), Ptr{Cvoid}()]
+
+  atg_max_pool2d_with_indices(ptr, t.ptr,
+                 k, length(k),
+                 s, length(s),
+                 p, length(p),
+                 d, length(d),
+                 ceil_mode,                # ceil_mode
+  )
+
+  Tensor{T,N}(ptr[1], on(t)), Tensor{T,N}(ptr[2], on(t))
 end

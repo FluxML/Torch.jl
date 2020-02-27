@@ -4,6 +4,10 @@ export Tensor, tensor, Scalar
 
 using YAML
 using Clang
+using ZygoteRules
+using ZygoteRules: @adjoint
+using NNlib
+using NNlib: PoolDims
 
 TURN_ON_LOGGING = false
 

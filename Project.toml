@@ -9,6 +9,7 @@ Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 NNlib = "872c559c-99b0-510c-b3b7-b6c96a88d5cd"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
+ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
 Clang = "0.9"
