@@ -6,7 +6,7 @@ This package is aimed at providing the `tensor` type, which offloads all computa
 **Note:**
 * Needs a working libtorch v1.4 installation, with CUDA (if desired)
   - Will be alleviated with a move to artifacts
-* For the time being please follow the build instructions [here](wrap/README.md)
+* For the time being please follow the build instructions [here](build/README.md)
 
 ## Basic Example
 
