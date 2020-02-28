@@ -8,7 +8,7 @@ This package is aimed at providing the `tensor` type, which offloads all computa
   - Will be alleviated with a move to artifacts
 * For the time being please follow the build instructions [here](build/README.md)
 
-## Basic Example
+## Usage Example
 
 ```julia
 using Metalhead, Metalhead.Flux, Torch
