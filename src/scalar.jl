@@ -1,16 +1,16 @@
 mutable struct Scalar{T}
   ptr::Ptr{Cvoid}
-  device::Symbol
+  device::Int
 
-  function Scalar{T}(r::T, dev = :cpu) where T <: Real
+  function Scalar{T}(r::T, dev = -1) where T <: Real
     ptr = Ref(Ptr{Cvoid}())
-    atg_scalar_tensor(ptr, [r], options[T], device[dev])
+    atg_scalar_tensor(ptr, [r], options[T], dev)
     obj = new(ptr[], dev)
     finalizer(async_free!, obj)
     obj
   end
 end
 
-Scalar(r::T; dev = :cpu) where T = Scalar{T}(r, dev)
+Scalar(r::T; dev = -1) where T = Scalar{T}(r, dev)
 
 free!(s::Scalar) = ats_free(s.ptr)

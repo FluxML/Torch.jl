@@ -3,10 +3,6 @@ const options = Dict(
   Int64 => 4,
   Float64 => 7,)
 
-const device = Dict(
-  :gpu => 2,
-  :cpu => -1)
-
 at_grad_set_enabled(0)
 
 function no_grad(f; flag = 0)
@@ -22,10 +18,10 @@ async_free!(x) = let x = x, ptr = x.ptr, oid = objectid(x)
 end
 
 mutable struct Tensor{T, N} <: AbstractArray{T,N}
-  ptr::Ptr{Cvoid}
-  device::Symbol
+  ptr::Ptr
+  device::Int
 
-  function Tensor{T,N}(ptr::Ptr, dev::Symbol) where {T,N}
+  function Tensor{T,N}(ptr::Ptr, dev::Int) where {T,N}
     obj = new(ptr, dev)
     finalizer(async_free!, obj)
     # TURN_ON_LOGGING == true && (logdict[ptr] = (size(obj), stacktrace()))
@@ -37,12 +33,12 @@ TensorVector{T} = Tensor{T, 1}
 TensorMatrix{T} = Tensor{T, 2}
 TensorVecOrMat{T} = Union{TensorVector{T}, TensorMatrix{T}}
 
-function Tensor(::Type{T}, sz::Int...; dev = :cpu) where T
+function Tensor(::Type{T}, sz::Int...; dev = -1) where T
   ptr = Ref(Ptr{Cvoid}())
   dtype = options[T]
   sz = reverse(collect(sz))
   # sz = length(sz) == 1 ? [sz;1] : sz
-  mem = device[dev]
+  mem = dev
   d = Ref(pointer(sz))
   len = length(sz)
 
@@ -51,8 +47,8 @@ function Tensor(::Type{T}, sz::Int...; dev = :cpu) where T
   Tensor{T, len}(ptr[], dev)
 end
 
-Tensor(sz::Int...; dev = :cpu) = Tensor(Float32, sz..., dev = dev)
-Tensor(sz::Int; dev = :cpu) = Tensor(Float32, Int(sz), dev = dev)
+Tensor(sz::Int...; dev = -1) = Tensor(Float32, sz..., dev = dev)
+Tensor(sz::Int; dev = -1) = Tensor(Float32, Int(sz), dev = dev)
 
 # function Tensor{T,N}(ptr::Ptr) where {T,N}
 #   Tensor{T,N}(ptr, on(ptr))
@@ -116,12 +112,12 @@ function Base.zero(t::Tensor{T,N}) where {T, N}
   Tensor{T, N}(ptr[], on(t))
 end
 
-function Base.rand(::Type{Tensor{T}}, sz::Int...; dev = :cpu) where T <: Real
+function Base.rand(::Type{Tensor{T}}, sz::Int...; dev = -1) where T <: Real
 
   ptr = Ref(Ptr{Cvoid}())
   dtype = options[T]
   sz = collect(sz)
-  mem = device[dev]
+  mem = dev
   len = length(sz)
 
   # atg_rand
@@ -129,10 +125,10 @@ function Base.rand(::Type{Tensor{T}}, sz::Int...; dev = :cpu) where T <: Real
   Tensor{T, len}(ptr[], dev)
 end
 
-Base.zeros(::Type{Tensor{T}}, sz::Int...; dev = :cpu) where T =
+Base.zeros(::Type{Tensor{T}}, sz::Int...; dev = -1) where T =
   Tensor(T, sz..., dev = dev)
 
-function tensor(x::AbstractArray{T,N}; dev = :cpu) where {T,N}
+function tensor(x::AbstractArray{T,N}; dev = -1) where {T,N}
 
   sz = if N == 2
     collect(size(x))
@@ -153,9 +149,9 @@ function tensor(x::AbstractArray{T,N}; dev = :cpu) where {T,N}
 end
 # tensor(x) = x
 
-function to(x::Tensor{T,N}; dev = :cpu) where {T,N}
+function to(x::Tensor{T,N}; dev = -1) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
-  atg_to(ptr, x.ptr, device[dev])
+  atg_to(ptr, x.ptr, dev)
   Tensor{Float32,N}(ptr[], dev)
 end
 
