@@ -28,4 +28,5 @@ include("normalise.jl")
 include("broadcast.jl")
 include("statistics.jl")
 
+include("utils.jl")
 end # module
