@@ -80,7 +80,7 @@ function _maxpool(t::Tensor{T,M}, pdims::PoolDims{N,K,S,P,D};
                  ceil_mode,                # ceil_mode
   )
 
-  Tensor{T,N}(ptr[], on(t))
+  Tensor{T,M}(ptr[], on(t))
 end
 
 function _maxpool_with_inds(t::Tensor{T,M}, pdims::PoolDims{N,K,S,P,D};
@@ -100,5 +100,5 @@ function _maxpool_with_inds(t::Tensor{T,M}, pdims::PoolDims{N,K,S,P,D};
                  ceil_mode,                # ceil_mode
   )
 
-  Tensor{T,N}(ptr[1], on(t)), Tensor{T,N}(ptr[2], on(t))
+  Tensor{T,M}(ptr[1], on(t)), Tensor{T,M}(ptr[2], on(t))
 end

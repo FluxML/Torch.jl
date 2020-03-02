@@ -107,5 +107,5 @@ function NNlib.∇meanpool(dy::Tensor{T,M}, y::Tensor{T,M}, x::Tensor{T,M},
                           count_include_pad,
                           divisor_override)
 
-  Tensor{T,N}(ptr[], on(x))
+  Tensor{T,M}(ptr[], on(x))
 end
