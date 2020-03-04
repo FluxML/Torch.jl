@@ -22,7 +22,8 @@ mutable struct Tensor{T, N} <: AbstractArray{T,N}
   device::Int
 
   function Tensor{T,N}(ptr::Union{Ptr,CuPtr}, dev::Int) where {T,N}
-    cuptr = Base.convert(CuPtr{Cvoid}, Base.bitcast(UInt, ptr))
+    cuptr = convert(CuPtr{Cvoid}, Base.bitcast(UInt, ptr))
+    cuptr = convert(CuPtr{T}, cuptr)
     obj = new(cuptr, dev)
     finalizer(async_free!, obj)
     # TURN_ON_LOGGING == true && (logdict[ptr] = (size(obj), stacktrace()))
