@@ -4,6 +4,7 @@ export Tensor, tensor, Scalar
 
 using YAML
 using Clang
+using CUDAdrv
 using ZygoteRules
 using ZygoteRules: @adjoint
 using NNlib
