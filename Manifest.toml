@@ -14,6 +14,18 @@ git-tree-sha1 = "62847acab40e6855a9b5905ccb99c2b5cf6b3ebb"
 uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 version = "0.2.0"
 
+[[CUDAapi]]
+deps = ["Libdl", "Logging"]
+git-tree-sha1 = "d7ceadd8f821177d05b897c0517e94633db535fe"
+uuid = "3895d2a7-ec45-59b8-82bb-cfc6a382f9b3"
+version = "3.1.0"
+
+[[CUDAdrv]]
+deps = ["CEnum", "CUDAapi", "Printf"]
+git-tree-sha1 = "01e90fa34e25776bc7c8661183d4519149ebfe59"
+uuid = "c5f51814-7f29-56b8-a69c-e4d8f6be1fde"
+version = "6.0.0"
+
 [[Clang]]
 deps = ["BinaryProvider", "CEnum", "DataStructures", "Libdl"]
 git-tree-sha1 = "a4110b4078ec19240b9f79993a5f6498956da37f"

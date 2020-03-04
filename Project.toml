@@ -4,6 +4,7 @@ authors = ["dhairyagandhi96 "]
 version = "0.1.0"
 
 [deps]
+CUDAdrv = "c5f51814-7f29-56b8-a69c-e4d8f6be1fde"
 Clang = "40e3b903-d033-50b4-a0cc-940c62c95e31"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 NNlib = "872c559c-99b0-510c-b3b7-b6c96a88d5cd"
