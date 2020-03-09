@@ -149,6 +149,13 @@ function tensor(x::AbstractArray{T,N}; dev = -1) where {T,N}
 end
 # tensor(x) = x
 
+function from_blob(x::AbstractArray{T,N}; dev = -1) where {T,N}
+  sz = reverse(collect(size(x)))
+  st = reverse(collect(strides(x)))
+  op = at_from_blob(pointer(x), sz, length(sz), st, length(st), dev)
+  Tensor{T,N}(op, dev)
+end
+
 function to(x::Tensor{T,N}; dev = -1) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
   atg_to(ptr, x.ptr, dev)

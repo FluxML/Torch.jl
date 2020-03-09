@@ -21,6 +21,15 @@ vector<torch::Tensor> of_carray_tensor(torch::Tensor **vs, int len) {
   return result;
 }
 
+tensor at_from_blob(void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev) {
+  PROTECT(
+    auto options = torch::TensorOptions().device(torch::kCUDA, dev).requires_grad(false);
+    torch::Tensor tens = torch::from_blob(data, torch::IntArrayRef(dims, ndims), torch::IntArrayRef(strides, nstrides), options);
+    return new torch::Tensor(tens);
+  )
+  return nullptr;
+}
+
 tensor at_new_tensor() {
   PROTECT(
     return new torch::Tensor();

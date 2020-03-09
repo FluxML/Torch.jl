@@ -30,6 +30,7 @@ tensor at_new_tensor();
 void at_empty_cache();
 int at_no_grad(int flag);
 void at_sync();
+tensor at_from_blob(void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev);
 tensor at_tensor_of_data(void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type);
 void at_copy_data(tensor tensor, void *vs, int64_t numel, int element_size_in_bytes);
 tensor at_float_vec(double *values, int value_len, int type);

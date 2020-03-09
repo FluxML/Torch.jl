@@ -10,6 +10,10 @@ function at_new_tensor()
     ccall((:at_new_tensor, :libdoeye_caml), tensor, ())
 end
 
+function at_from_blob(data::CuPtr{T}, sizes, nsizes, _strides, _nstrides, dev) where T
+  ccall((:at_from_blob, :libdoeye_caml), tensor, (CuPtr{T}, Ptr{Int64}, Cint, Ptr{Int64}, Cint, Cint), data, sizes, nsizes, _strides, _nstrides, dev)
+end
+
 function at_empty_cache()
   ccall((:at_empty_cache, :libdoeye_caml), Cvoid, ())
 end
