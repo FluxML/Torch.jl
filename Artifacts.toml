@@ -1,6 +1,6 @@
 [torch]
-git-tree-sha1 = "21fba0f64d7e6dce93146b84ba73226f4f0f0983"
-os = "macos"
+ git-tree-sha1 = "21fba0f64d7e6dce93146b84ba73226f4f0f0983"
+ os = "macos"
 
     [[torch.download]]
     sha256 = "21fba0f64d7e6dce93146b84ba73226f4f0f0983"
