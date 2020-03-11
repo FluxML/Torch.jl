@@ -4,7 +4,6 @@
 #include<c10/cuda/CUDACachingAllocator.h>
 #include<c10/cuda/CUDAStream.h>
 #include<vector>
-// #include<caml/fail.h>
 #include<julia.h>
 #include "torch_api.h"
 
@@ -19,6 +18,15 @@ vector<torch::Tensor> of_carray_tensor(torch::Tensor **vs, int len) {
   vector<torch::Tensor> result;
   for (int i = 0; i < len; ++i) result.push_back(*(vs[i]));
   return result;
+}
+
+tensor at_from_blob(void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev) {
+  PROTECT(
+    auto options = torch::TensorOptions().device(torch::kCUDA, dev).requires_grad(false);
+    torch::Tensor tens = torch::from_blob(data, torch::IntArrayRef(dims, ndims), torch::IntArrayRef(strides, nstrides), options);
+    return new torch::Tensor(tens);
+  )
+  return nullptr;
 }
 
 tensor at_new_tensor() {
