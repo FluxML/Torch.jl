@@ -22,5 +22,10 @@ tip = tensor(ip, dev = 0) # 0 => GPU:0 in Torch
 tresnet(tip);
 ```
 
+## Making a CuArray
+```julia
+CuArray{Float32,4}(tip.ptr, size(tip), false)::CuArray
+```
+
 ## Acknowledgements
 Takes a lot of inspiration from existing such projects - ocaml-torch for generating the wrappers.

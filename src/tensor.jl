@@ -18,11 +18,13 @@ async_free!(x) = let x = x, ptr = x.ptr, oid = objectid(x)
 end
 
 mutable struct Tensor{T, N} <: AbstractArray{T,N}
-  ptr::Ptr
+  ptr::Union{Ptr,CuPtr}
   device::Int
 
-  function Tensor{T,N}(ptr::Ptr, dev::Int) where {T,N}
-    obj = new(ptr, dev)
+  function Tensor{T,N}(ptr::Union{Ptr,CuPtr}, dev::Int) where {T,N}
+    cuptr = convert(CuPtr{Cvoid}, Base.bitcast(UInt, ptr))
+    cuptr = convert(CuPtr{T}, cuptr)
+    obj = new(cuptr, dev)
     finalizer(async_free!, obj)
     # TURN_ON_LOGGING == true && (logdict[ptr] = (size(obj), stacktrace()))
     obj
