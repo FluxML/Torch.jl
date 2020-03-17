@@ -4,11 +4,18 @@
 #include<c10/cuda/CUDACachingAllocator.h>
 #include<c10/cuda/CUDAStream.h>
 #include<vector>
-#include<julia.h>
 #include "torch_api.h"
 
 #define caml_invalid_argument printf
 using namespace std;
+
+char* get_last_error() {
+  return myerr;
+}
+
+void flush_error() {
+  myerr = "";
+}
 
 void at_manual_seed(int64_t seed) {
   torch::manual_seed(seed);
