@@ -10,8 +10,8 @@ function at_new_tensor(arg1)
     ccall((:at_new_tensor, :libdoeye_caml), Cvoid, (Ptr{tensor}, ), arg1)
 end
 
-function at_from_blob(ptr, data::CuPtr{T}, sizes, nsizes, _strides, _nstrides, dev) where T
-  ccall((:at_from_blob, :libdoeye_caml), Cvoid, (Ptr{Cvoid}, CuPtr{T}, Ptr{Int64}, Cint, Ptr{Int64}, Cint, Cint), ptr, data, sizes, nsizes, _strides, _nstrides, dev)
+function at_from_blob(ptr, data, sizes, nsizes, _strides, _nstrides, dev) where T
+  ccall((:at_from_blob, :libdoeye_caml), Cvoid, (Ptr{Cvoid}, tensor, Ptr{Int64}, Cint, Ptr{Int64}, Cint, Cint), ptr, data, sizes, nsizes, _strides, _nstrides, dev)
 end
 
 function at_empty_cache()
@@ -469,7 +469,7 @@ function atg_align_as(arg1, self, other)
 end
 
 function atg_align_tensors(op::AbstractVector, tensors_data, tensors_len)
-    ccall((:atg_align_tensors, :libdoeye_caml), Cvoid, (Ptr{tensor}, Ptr{CuPtr{Cvoid}}, Cint), op, tensors_data, tensors_len)
+    ccall((:atg_align_tensors, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{tensor}, Cint), op, tensors_data, tensors_len)
 end
 
 function atg_all(arg1, self)
@@ -749,7 +749,7 @@ function atg_bmm_out(arg1, out, self, mat2)
 end
 
 function atg_broadcast_tensors(op::AbstractVector, tensors_data, tensors_len)
-    ccall((:atg_broadcast_tensors, :libdoeye_caml), Cvoid, (Ptr{tensor}, Ptr{CuPtr{Cvoid}}, Cint), op, tensors_data, tensors_len)
+    ccall((:atg_broadcast_tensors, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{tensor}, Cint), op, tensors_data, tensors_len)
 end
 
 function atg_cartesian_prod(arg1, tensors_data, tensors_len)
@@ -757,7 +757,7 @@ function atg_cartesian_prod(arg1, tensors_data, tensors_len)
 end
 
 function atg_cat(arg1, tensors_data, tensors_len, dim)
-    ccall((:atg_cat, :libdoeye_caml), Cvoid, (Ptr{tensor}, Ptr{CuPtr{Cvoid}}, Cint, Int64), arg1, tensors_data, tensors_len, dim)
+    ccall((:atg_cat, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{tensor}, Cint, Int64), arg1, tensors_data, tensors_len, dim)
 end
 
 function atg_cat_out(arg1, out, tensors_data, tensors_len, dim)
@@ -2325,7 +2325,7 @@ function atg_median_out(arg1, values, indices, self, dim, keepdim)
 end
 
 function atg_meshgrid(op::AbstractVector, tensors_data, tensors_len)
-    ccall((:atg_meshgrid, :libdoeye_caml), Cvoid, (Ptr{tensor}, Ptr{CuPtr{Cvoid}}, Cint), op, tensors_data, tensors_len)
+    ccall((:atg_meshgrid, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{tensor}, Cint), op, tensors_data, tensors_len)
 end
 
 function atg_min(arg1, self)
