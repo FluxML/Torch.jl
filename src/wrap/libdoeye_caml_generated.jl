@@ -463,7 +463,7 @@ function atg_align_as(arg1, self, other)
 end
 
 function atg_align_tensors(op::AbstractVector, tensors_data, tensors_len)
-    ccall((:atg_align_tensors, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{CuPtr{Cvoid}}, Cint), tensors_data, tensors_len)
+    ccall((:atg_align_tensors, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{CuPtr{Cvoid}}, Cint), op, tensors_data, tensors_len)
 end
 
 function atg_all(arg1, self)
@@ -3507,7 +3507,7 @@ function atg_sparse_resize_and_clear_(arg1, self, size_data, size_len, sparse_di
 end
 
 function atg_split(op::AbstractVector, self, split_size, dim)
-    ccall((:atg_split, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, tensor, Int64, Int64), self, split_size, dim)
+    ccall((:atg_split, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, tensor, Int64, Int64), op, self, split_size, dim)
 end
 
 function atg_split_with_sizes(op::AbstractVector, self, split_sizes_data, split_sizes_len, dim)
@@ -4015,7 +4015,7 @@ function atg_view_as(arg1, self, other)
 end
 
 function atg_where(op::AbstractVector, condition)
-    ccall((:atg_where, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, tensor,), condition)
+    ccall((:atg_where, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, tensor,), op, condition)
 end
 
 function atg_where1(arg1, condition, self, other)
