@@ -27,20 +27,20 @@ vector<torch::Tensor> of_carray_tensor(torch::Tensor **vs, int len) {
   return result;
 }
 
-tensor at_from_blob(void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev) {
+void at_from_blob(tensor *out__, void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev) {
   PROTECT(
     auto options = torch::TensorOptions().device(torch::kCUDA, dev).requires_grad(false);
     torch::Tensor tens = torch::from_blob(data, torch::IntArrayRef(dims, ndims), torch::IntArrayRef(strides, nstrides), options);
-    return new torch::Tensor(tens);
+    out__[1] = new torch::Tensor(tens);
   )
-  return nullptr;
+  // return nullptr;
 }
 
-tensor at_new_tensor() {
+void at_new_tensor(tensor *out__) {
   PROTECT(
-    return new torch::Tensor();
+    out__[1] = new torch::Tensor();
   )
-  return nullptr;
+  // return nullptr;
 }
 
 void at_empty_cache() {
@@ -49,9 +49,9 @@ void at_empty_cache() {
   )
 }
 
-int at_no_grad(int flag) {
+void at_no_grad(int flag) {
   torch::GradMode::set_enabled((bool)flag);
-  return flag;
+  // return flag;
 }
 
 void at_sync() {
@@ -60,7 +60,7 @@ void at_sync() {
   // torch::cuda::synchronize();
 }
 
-tensor at_tensor_of_data(void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type) {
+void at_tensor_of_data(tensor *out__, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type) {
   PROTECT(
     // auto options = torch::TensorOptions().dtype(torch::ScalarType(type)).requires_grad(false);
     torch::Tensor tensor = torch::zeros(torch::IntArrayRef(dims, ndims), torch::ScalarType(type));
@@ -68,9 +68,9 @@ tensor at_tensor_of_data(void *vs, int64_t *dims, int ndims, int element_size_in
       jl_error("incoherent element sizes in bytes");
     void *tensor_data = tensor.data_ptr();
     memcpy(tensor_data, vs, tensor.numel() * element_size_in_bytes);
-    return new torch::Tensor(tensor);
+    out__[0] = new torch::Tensor(tensor);
   )
-  return nullptr;
+  // return nullptr;
 }
 
 void at_copy_data(tensor tensor, void *vs, int64_t numel, int elt_size_in_bytes) {
@@ -91,32 +91,32 @@ void at_copy_data(tensor tensor, void *vs, int64_t numel, int elt_size_in_bytes)
   )
 }
 
-tensor at_float_vec(double *vs, int len, int type) {
+void at_float_vec(tensor *out__, double *vs, int len, int type) {
   PROTECT(
     torch::Tensor tensor = torch::empty({len}, torch::ScalarType(type));
     for (int i = 0; i < len; ++i) tensor[i] = vs[i];
-    return new torch::Tensor(tensor);
+    out__[0] = new torch::Tensor(tensor);
   )
-  return nullptr;
+  // return nullptr;
 }
 
-tensor at_int_vec(int64_t *vs, int len, int type) {
+void at_int_vec(tensor *out__, int64_t *vs, int len, int type) {
   PROTECT(
     torch::Tensor tensor = torch::empty({len}, torch::ScalarType(type));
     for (int i = 0; i < len; ++i) tensor[i] = vs[i];
-    return new torch::Tensor(tensor);
+    out__[0] = new torch::Tensor(tensor);
   )
-  return nullptr;
+  // return nullptr;
 }
 
-int at_defined(tensor t) {
-  PROTECT(return t->defined();)
-  return -1;
+void at_defined(int *i, tensor t) {
+  PROTECT(i[0] = t->defined();)
+  // return -1;
 }
 
-int at_dim(tensor t) {
-  PROTECT(return t->dim();)
-  return -1;
+void at_dim(int *i, tensor t) {
+  PROTECT(i[0] = t->dim();)
+  // return -1;
 }
 
 void at_shape(tensor t, int *dims) {
@@ -126,9 +126,9 @@ void at_shape(tensor t, int *dims) {
   )
 }
 
-int at_scalar_type(tensor t) {
+void at_scalar_type(int *i, tensor t) {
   PROTECT(
-    return static_cast<int>(t->scalar_type());
+    i[0] = static_cast<int>(t->scalar_type());
   )
 }
 
@@ -136,23 +136,23 @@ void at_backward(tensor t, int keep_graph, int create_graph) {
   PROTECT(t->backward({}, keep_graph, create_graph);)
 }
 
-int at_requires_grad(tensor t) {
-  PROTECT(return t->requires_grad();)
-  return -1;
+void at_requires_grad(int *i, tensor t) {
+  PROTECT(i[0] = t->requires_grad();)
+  // return -1;
 }
 
-int at_grad_set_enabled(int b) {
+void at_grad_set_enabled(int b) {
   PROTECT(
     bool is_enabled = torch::autograd::GradMode::is_enabled();
     torch::autograd::GradMode::set_enabled(b);
-    return is_enabled;
+    // return is_enabled;
   )
-  return -1;
+  // return -1;
 }
 
-tensor at_get(tensor t, int index) {
-  PROTECT(return new torch::Tensor((*t)[index]);)
-  return nullptr;
+void at_get(tensor *out__, tensor t, int index) {
+  PROTECT(out__[0] = new torch::Tensor((*t)[index]);)
+  // return nullptr;
 }
 
 template<typename T>
@@ -167,12 +167,12 @@ T at_value_at_indexes(tensor t, int *indexes, int indexes_len) {
   return T();
 }
 
-double at_double_value_at_indexes(tensor t, int *indexes, int indexes_len) {
-  return at_value_at_indexes<double>(t, indexes, indexes_len);
+void at_double_value_at_indexes(double *i, tensor t, int *indexes, int indexes_len) {
+   i[0] = at_value_at_indexes<double>(t, indexes, indexes_len);
 }
 
-int64_t at_int64_value_at_indexes(tensor t, int *indexes, int indexes_len) {
-  return at_value_at_indexes<int64_t>(t, indexes, indexes_len);
+void at_int64_value_at_indexes(int64_t *i, tensor t, int *indexes, int indexes_len) {
+  i[0] = at_value_at_indexes<int64_t>(t, indexes, indexes_len);
 }
 
 template<typename T>
@@ -278,13 +278,13 @@ void at_load_multi_(tensor *tensors, char **tensor_names, int ntensors, char *fi
   )
 }
 
-tensor at_load(char *filename) {
+void at_load(char *filename, tensor *out__) {
   PROTECT(
     torch::Tensor tensor;
     torch::load(tensor, filename);
-    return new torch::Tensor(tensor);
+    out__[0] = new torch::Tensor(tensor);
   )
-  return nullptr;
+  // return nullptr;
 }
 
 void at_free(tensor t) {
