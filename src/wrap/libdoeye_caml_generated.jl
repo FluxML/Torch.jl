@@ -6,12 +6,12 @@ function at_manual_seed(arg1)
     ccall((:at_manual_seed, :libdoeye_caml), Cvoid, (Int64,), arg1)
 end
 
-function at_new_tensor()
-    ccall((:at_new_tensor, :libdoeye_caml), tensor, ())
+function at_new_tensor(arg1)
+    ccall((:at_new_tensor, :libdoeye_caml), Cvoid, (Ptr{tensor}, ), arg1)
 end
 
-function at_from_blob(data::CuPtr{T}, sizes, nsizes, _strides, _nstrides, dev) where T
-  ccall((:at_from_blob, :libdoeye_caml), tensor, (CuPtr{T}, Ptr{Int64}, Cint, Ptr{Int64}, Cint, Cint), data, sizes, nsizes, _strides, _nstrides, dev)
+function at_from_blob(ptr, data::CuPtr{T}, sizes, nsizes, _strides, _nstrides, dev) where T
+  ccall((:at_from_blob, :libdoeye_caml), Cvoid, (Ptr{Cvoid}, CuPtr{T}, Ptr{Int64}, Cint, Ptr{Int64}, Cint, Cint), ptr, data, sizes, nsizes, _strides, _nstrides, dev)
 end
 
 function at_empty_cache()
@@ -19,59 +19,59 @@ function at_empty_cache()
 end
 
 function at_no_grad(flag = 0)
-  ccall((:at_no_grad, :libdoeye_caml), Cint, (Cint,), flag)
+  ccall((:at_no_grad, :libdoeye_caml), Cvoid, (Cint,), flag)
 end
 
 function at_sync()
   ccall((:at_sync, :libdoeye_caml), Cvoid, ())
 end
 
-function at_tensor_of_data(vs, dims, ndims, element_size_in_bytes, type_t)
-    ccall((:at_tensor_of_data, :libdoeye_caml), tensor, (Ptr{Cvoid}, Ptr{Int64}, Cint, Cint, Cint), vs, dims, ndims, element_size_in_bytes, type_t)
+function at_tensor_of_data(ptr, vs, dims, ndims, element_size_in_bytes, type_t)
+    ccall((:at_tensor_of_data, :libdoeye_caml), Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Int64}, Cint, Cint, Cint), ptr, vs, dims, ndims, element_size_in_bytes, type_t)
 end
 
 function at_copy_data(tensor_t, vs, numel, element_size_in_bytes)
     ccall((:at_copy_data, :libdoeye_caml), Cvoid, (tensor, Ptr{Cvoid}, Int64, Cint), tensor_t, vs, numel, element_size_in_bytes)
 end
 
-function at_float_vec(values, value_len, type_t)
-    ccall((:at_float_vec, :libdoeye_caml), tensor, (Ptr{Cdouble}, Cint, Cint), values, value_len, type_t)
+function at_float_vec(op, values, value_len, type_t)
+    ccall((:at_float_vec, :libdoeye_caml), Cvoid, (tensor, Ptr{Cdouble}, Cint, Cint), op, values, value_len, type_t)
 end
 
-function at_int_vec(values, value_len, type_t)
-    ccall((:at_int_vec, :libdoeye_caml), tensor, (Ptr{Int64}, Cint, Cint), values, value_len, type_t)
+function at_int_vec(op, values, value_len, type_t)
+    ccall((:at_int_vec, :libdoeye_caml), Cvoid, (tensor, Ptr{Int64}, Cint, Cint), op, values, value_len, type_t)
 end
 
-function at_defined(arg1)
-    ccall((:at_defined, :libdoeye_caml), Cint, (tensor,), arg1)
+function at_defined(op, arg1)
+    ccall((:at_defined, :libdoeye_caml), Cvoid, (Ptr{Cint}, tensor,), op, arg1)
 end
 
-function at_dim(arg1)
-    ccall((:at_dim, :libdoeye_caml), Cint, (tensor,), arg1)
+function at_dim(i, arg1)
+    ccall((:at_dim, :libdoeye_caml), Cvoid, (Ptr{Cint}, tensor,),  i, arg1)
 end
 
 function at_shape(arg1, arg2)
     ccall((:at_shape, :libdoeye_caml), Cvoid, (tensor, Ptr{Cint}), arg1, arg2)
 end
 
-function at_scalar_type(arg1)
-    ccall((:at_scalar_type, :libdoeye_caml), Cint, (tensor,), arg1)
+function at_scalar_type(op, arg1)
+    ccall((:at_scalar_type, :libdoeye_caml), Cvoid, (Ptr{Cint}, tensor,), op, arg1)
 end
 
 function at_backward(arg1, arg2, arg3)
     ccall((:at_backward, :libdoeye_caml), Cvoid, (tensor, Cint, Cint), arg1, arg2, arg3)
 end
 
-function at_requires_grad(arg1)
-    ccall((:at_requires_grad, :libdoeye_caml), Cint, (tensor,), arg1)
+function at_requires_grad(op, arg1)
+    ccall((:at_requires_grad, :libdoeye_caml), Cvoid, (Ptr{Cint}, tensor,), op, arg1)
 end
 
 function at_grad_set_enabled(arg1)
-    ccall((:at_grad_set_enabled, :libdoeye_caml), Cint, (Cint,), arg1)
+    ccall((:at_grad_set_enabled, :libdoeye_caml), Cvoid, (Cint,), arg1)
 end
 
-function at_get(arg1, index)
-    ccall((:at_get, :libdoeye_caml), tensor, (tensor, Cint), arg1, index)
+function at_get(op, arg1, index)
+    ccall((:at_get, :libdoeye_caml), Cvoid, (Ptr{Cvoid}, tensor, Cint), op, arg1, index)
 end
 
 function at_fill_double(arg1, arg2)
@@ -82,12 +82,12 @@ function at_fill_int64(arg1, arg2)
     ccall((:at_fill_int64, :libdoeye_caml), Cvoid, (tensor, Int64), arg1, arg2)
 end
 
-function at_double_value_at_indexes(arg1, indexes, indexes_len)
-    ccall((:at_double_value_at_indexes, :libdoeye_caml), Cdouble, (tensor, Ptr{Cint}, Cint), arg1, indexes, indexes_len)
+function at_double_value_at_indexes(op, arg1, indexes, indexes_len)
+    ccall((:at_double_value_at_indexes, :libdoeye_caml), Cvoid, (Ptr{Cdouble}, tensor, Ptr{Cint}, Cint), op, arg1, indexes, indexes_len)
 end
 
-function at_int64_value_at_indexes(arg1, indexes, indexes_len)
-    ccall((:at_int64_value_at_indexes, :libdoeye_caml), Int64, (tensor, Ptr{Cint}, Cint), arg1, indexes, indexes_len)
+function at_int64_value_at_indexes(op, arg1, indexes, indexes_len)
+    ccall((:at_int64_value_at_indexes, :libdoeye_caml), Cvoid, (Ptr{Int64}, tensor, Ptr{Cint}, Cint), op, arg1, indexes, indexes_len)
 end
 
 function at_set_double_value_at_indexes(arg1, indexes, indexes_len, v)
@@ -114,8 +114,8 @@ function at_save(arg1, filename)
     ccall((:at_save, :libdoeye_caml), Cvoid, (tensor, Cstring), arg1, filename)
 end
 
-function at_load(filename)
-    ccall((:at_load, :libdoeye_caml), tensor, (Cstring,), filename)
+function at_load(filename, op)
+    ccall((:at_load, :libdoeye_caml), Cvoid, (Cstring, Ptr{Cvoid}), filename, op)
 end
 
 function at_save_multi(tensors, tensor_names, ntensors, filename)
@@ -142,16 +142,16 @@ function at_run_backward(tensors, ntensors, inputs, ninputs, outputs, keep_graph
     ccall((:at_run_backward, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Cint, Ptr{Ptr{Cvoid}}, Cint, Ptr{Ptr{Cvoid}}, Cint, Cint), tensors, ntensors, inputs, ninputs, outputs, keep_graph, create_graph)
 end
 
-function ato_adam(learning_rate, beta1, beta2, weight_decay)
-    ccall((:ato_adam, :libdoeye_caml), optimizer, (Cdouble, Cdouble, Cdouble, Cdouble), learning_rate, beta1, beta2, weight_decay)
+function ato_adam(op, learning_rate, beta1, beta2, weight_decay)
+    ccall((:ato_adam, :libdoeye_caml), Cvoid, (optimizer, Cdouble, Cdouble, Cdouble, Cdouble), op, learning_rate, beta1, beta2, weight_decay)
 end
 
-function ato_rmsprop(learning_rate, alpha, eps, weight_decay, momentum, centered)
-    ccall((:ato_rmsprop, :libdoeye_caml), optimizer, (Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cint), learning_rate, alpha, eps, weight_decay, momentum, centered)
+function ato_rmsprop(op, learning_rate, alpha, eps, weight_decay, momentum, centered)
+    ccall((:ato_rmsprop, :libdoeye_caml), Cvoid, (optimizer, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cint), op, learning_rate, alpha, eps, weight_decay, momentum, centered)
 end
 
-function ato_sgd(learning_rate, momentum, dampening, weight_decay, nesterov)
-    ccall((:ato_sgd, :libdoeye_caml), optimizer, (Cdouble, Cdouble, Cdouble, Cdouble, Cint), learning_rate, momentum, dampening, weight_decay, nesterov)
+function ato_sgd(op, learning_rate, momentum, dampening, weight_decay, nesterov)
+    ccall((:ato_sgd, :libdoeye_caml), Cvoid, (optimizer, Cdouble, Cdouble, Cdouble, Cdouble, Cint), op, learning_rate, momentum, dampening, weight_decay, nesterov)
 end
 
 function ato_add_parameters(arg1, arg2, ntensors)
@@ -178,12 +178,12 @@ function ato_free(arg1)
     ccall((:ato_free, :libdoeye_caml), Cvoid, (optimizer,), arg1)
 end
 
-function ats_int(arg1)
-    ccall((:ats_int, :libdoeye_caml), scalar, (Int64,), arg1)
+function ats_int(op, arg1)
+    ccall((:ats_int, :libdoeye_caml), Cvoid, (scalar, Int64,), op, arg1)
 end
 
-function ats_float(arg1)
-    ccall((:ats_float, :libdoeye_caml), scalar, (Cdouble,), arg1)
+function ats_float(op, arg1)
+    ccall((:ats_float, :libdoeye_caml), Cvoid, (scalar, Cdouble,), op, arg1)
 end
 
 function ats_free(arg1)
@@ -191,67 +191,73 @@ function ats_free(arg1)
 end
 
 function atc_cuda_device_count()
-    ccall((:atc_cuda_device_count, :libdoeye_caml), Cint, ())
+    op = Int32[-1]
+    ccall((:atc_cuda_device_count, :libdoeye_caml), Cvoid, (Ptr{Cint}, ), op)
+    op[]
 end
 
 function atc_cuda_is_available()
-    ccall((:atc_cuda_is_available, :libdoeye_caml), Cint, ())
+    op = Int32[-1]
+    ccall((:atc_cuda_is_available, :libdoeye_caml), Cvoid, (Ptr{Cint}, ), op)
+    op[]
 end
 
 function atc_cudnn_is_available()
-    ccall((:atc_cudnn_is_available, :libdoeye_caml), Cint, ())
+    op = Int32[-1]
+    ccall((:atc_cudnn_is_available, :libdoeye_caml), Cvoid, (Ptr{Cint}, ), op)
+    op[]
 end
 
 function atc_set_benchmark_cudnn(b)
     ccall((:atc_set_benchmark_cudnn, :libdoeye_caml), Cvoid, (Cint,), b)
 end
 
-function atm_load(arg1)
-    ccall((:atm_load, :libdoeye_caml), module_t, (Cstring,), arg1)
+function atm_load(arg1, op)
+    ccall((:atm_load, :libdoeye_caml), Cvoid, (Cstring, Ptr{module_t}), arg1, op)
 end
 
-function atm_forward(arg1, tensors, ntensors)
-    ccall((:atm_forward, :libdoeye_caml), tensor, (module_t, Ptr{Ptr{Cvoid}}, Cint), arg1, tensors, ntensors)
+function atm_forward(op, arg1, tensors, ntensors)
+    ccall((:atm_forward, :libdoeye_caml), Cvoid, (Ptr{tensor}, module_t, Ptr{Ptr{Cvoid}}, Cint), op, arg1, tensors, ntensors)
 end
 
-function atm_forward_(arg1, ivalues, nivalues)
-    ccall((:atm_forward_, :libdoeye_caml), ivalue, (module_t, Ptr{ivalue}, Cint), arg1, ivalues, nivalues)
+function atm_forward_(op, arg1, ivalues, nivalues)
+    ccall((:atm_forward_, :libdoeye_caml), Cvoid, (Ptr{ivalue}, module_t, Ptr{ivalue}, Cint), op, arg1, ivalues, nivalues)
 end
 
 function atm_free(arg1)
     ccall((:atm_free, :libdoeye_caml), Cvoid, (module_t,), arg1)
 end
 
-function ati_tensor(arg1)
-    ccall((:ati_tensor, :libdoeye_caml), ivalue, (tensor,), arg1)
+function ati_tensor(op, arg1)
+    ccall((:ati_tensor, :libdoeye_caml), Cvoid, (Ptr{ivalue}, tensor,), op, arg1)
 end
 
-function ati_int(arg1)
-    ccall((:ati_int, :libdoeye_caml), ivalue, (Int64,), arg1)
+function ati_int(op, arg1)
+    ccall((:ati_int, :libdoeye_caml), Cvoid, (Ptr{ivalue}, Int64,), op, arg1)
 end
 
-function ati_double(arg1)
-    ccall((:ati_double, :libdoeye_caml), ivalue, (Cdouble,), arg1)
+function ati_double(op, arg1)
+    ccall((:ati_double, :libdoeye_caml), Cvoid, (Ptr{ivalue}, Cdouble,), op, arg1)
 end
 
-function ati_tuple(arg1, arg2)
-    ccall((:ati_tuple, :libdoeye_caml), ivalue, (Ptr{ivalue}, Cint), arg1, arg2)
+function ati_tuple(op, arg1, arg2)
+    ccall((:ati_tuple, :libdoeye_caml), Cvoid, (Ptr{ivalue}, Ptr{ivalue}, Cint), op, arg1, arg2)
 end
 
-function ati_to_tensor(arg1)
-    ccall((:ati_to_tensor, :libdoeye_caml), tensor, (ivalue,), arg1)
+function ati_to_tensor(op, arg1)
+    ccall((:ati_to_tensor, :libdoeye_caml), Cvoid, (Ptr{tensor}, ivalue,), op, arg1)
 end
 
-function ati_to_int(arg1)
-    ccall((:ati_to_int, :libdoeye_caml), Int64, (ivalue,), arg1)
+function ati_to_int(op, arg1)
+    ccall((:ati_to_int, :libdoeye_caml), Cvoid, (Ptr{Int64}, ivalue,), op, arg1)
 end
 
-function ati_to_double(arg1)
-    ccall((:ati_to_double, :libdoeye_caml), Cdouble, (ivalue,), arg1)
+function ati_to_double(op, arg1)
+    ccall((:ati_to_double, :libdoeye_caml), Cvoid, (Ptr{Cdouble}, ivalue,), op, arg1)
 end
 
-function ati_tuple_length(arg1)
-    ccall((:ati_tuple_length, :libdoeye_caml), Cint, (ivalue,), arg1)
+function ati_tuple_length(op, arg1)
+    ccall((:ati_tuple_length, :libdoeye_caml), Cvoid, (Ptr{Cint}, ivalue,), op, arg1)
 end
 
 function ati_to_tuple(arg1, arg2, arg3)
@@ -259,7 +265,7 @@ function ati_to_tuple(arg1, arg2, arg3)
 end
 
 function ati_tag(arg1)
-    ccall((:ati_tag, :libdoeye_caml), Cint, (ivalue,), arg1)
+    ccall((:ati_tag, :libdoeye_caml), Cvoid, (Ptr{Cint}, ivalue,), op, arg1)
 end
 
 function ati_free(arg1)
@@ -751,7 +757,7 @@ function atg_cartesian_prod(arg1, tensors_data, tensors_len)
 end
 
 function atg_cat(arg1, tensors_data, tensors_len, dim)
-    ccall((:atg_cat, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint, Int64), arg1, tensors_data, tensors_len, dim)
+    ccall((:atg_cat, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{CuPtr{Cvoid}}, Cint, Int64), arg1, tensors_data, tensors_len, dim)
 end
 
 function atg_cat_out(arg1, out, tensors_data, tensors_len, dim)
