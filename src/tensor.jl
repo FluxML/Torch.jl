@@ -5,10 +5,14 @@ const options = Dict(
 
 at_grad_set_enabled(0)
 
+struct TorchGPUOOMError <: Exception end
+
 function no_grad(f; flag = 0)
   at_no_grad(flag)
   f()
 end
+
+sync() = at_sync()
 
 async_free!(x) = let x = x, ptr = x.ptr, oid = objectid(x)
   @async begin
@@ -18,11 +22,13 @@ async_free!(x) = let x = x, ptr = x.ptr, oid = objectid(x)
 end
 
 mutable struct Tensor{T, N} <: AbstractArray{T,N}
-  ptr::Ptr
+  ptr::Union{Ptr,CuPtr}
   device::Int
 
-  function Tensor{T,N}(ptr::Ptr, dev::Int) where {T,N}
-    obj = new(ptr, dev)
+  function Tensor{T,N}(ptr::Union{CuPtr,Ptr}, dev::Int) where {T,N}
+    cuptr = convert(CuPtr{Cvoid}, Base.bitcast(UInt, ptr))
+    cuptr = convert(CuPtr{Float32}, cuptr)
+    obj = new(cuptr, dev)
     finalizer(async_free!, obj)
     # TURN_ON_LOGGING == true && (logdict[ptr] = (size(obj), stacktrace()))
     obj
@@ -37,7 +43,6 @@ function Tensor(::Type{T}, sz::Int...; dev = -1) where T
   ptr = Ref(Ptr{Cvoid}())
   dtype = options[T]
   sz = reverse(collect(sz))
-  # sz = length(sz) == 1 ? [sz;1] : sz
   mem = dev
   d = Ref(pointer(sz))
   len = length(sz)
@@ -54,10 +59,17 @@ Tensor(sz::Int; dev = -1) = Tensor(Float32, Int(sz), dev = dev)
 #   Tensor{T,N}(ptr, on(ptr))
 # end
 
+function at_dim(t::Tensor)
+  i = Int32[-1]
+  at_dim(i, t.ptr)
+  i[1]
+end
+
 function Base.size(t::Tensor)
-  dims = at_dim(t.ptr)
+  dims = at_dim(t)
   sz = zeros(Int32, dims)
   at_shape(t.ptr, pointer(sz))
+  # s = Int.(tuple(sz...))
   if t isa TensorMatrix
     Int.(tuple(sz...))
   else
@@ -143,8 +155,9 @@ function tensor(x::AbstractArray{T,N}; dev = -1) where {T,N}
   typ = options[T] 
   parr = Ref(pointer(x))
 
-  op = at_tensor_of_data(parr.x, sz, nd, el_sz_in_bytes, typ)
-  opt = Tensor{Float32, N}(op, dev)
+  ptr = Ref(Ptr{Cvoid}())
+  at_tensor_of_data(ptr, parr.x, sz, nd, el_sz_in_bytes, typ)
+  opt = Tensor{Float32, N}(ptr[], dev)
   to(opt, dev = dev)
 end
 # tensor(x) = x
@@ -152,8 +165,9 @@ end
 function from_blob(x::AbstractArray{T,N}; dev = -1) where {T,N}
   sz = reverse(collect(size(x)))
   st = reverse(collect(strides(x)))
-  op = at_from_blob(pointer(x), sz, length(sz), st, length(st), dev)
-  Tensor{T,N}(op, dev)
+  ptr = Ref(Ptr{Cvoid}())
+  at_from_blob(ptr, pointer(x), sz, length(sz), st, length(st), dev)
+  Tensor{T,N}(ptr[], dev)
 end
 
 function to(x::Tensor{T,N}; dev = -1) where {T,N}
