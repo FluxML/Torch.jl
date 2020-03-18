@@ -24,6 +24,13 @@ function Base.sqrt(t::Tensor{T,N}) where {T,N}
   Tensor{T,N}(ptr[], on(t))
 end
 
+function Base.cat(ts::Tensor{T,N}...; dims = 1) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+  ts_arr = [i.ptr for i in ts]
+  atg_cat(ptr, ts_arr, length(ts_arr), dims - 1)
+  Tensor{T,N}(ptr[], on(ts[1]))
+end
+
 # TODO: Use a macro to generate wrappers
 function conv2d(input::Tensor{T}, filter::Tensor{T,N}, bias::Tensor{T};
 		stride = [1],
