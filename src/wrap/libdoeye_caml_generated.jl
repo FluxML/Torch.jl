@@ -757,7 +757,7 @@ function atg_cartesian_prod(arg1, tensors_data, tensors_len)
 end
 
 function atg_cat(arg1, tensors_data, tensors_len, dim)
-    ccall((:atg_cat, :libdoeye_caml), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{tensor}, Cint, Int64), arg1, tensors_data, tensors_len, dim)
+    ccall((:atg_cat, :libdoeye_caml), Cvoid, (Ptr{tensor}, Ptr{tensor}, Cint, Int64), arg1, tensors_data, tensors_len, dim)
 end
 
 function atg_cat_out(arg1, out, tensors_data, tensors_len, dim)
