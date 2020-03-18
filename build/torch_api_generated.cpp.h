@@ -348,15 +348,15 @@ void atg_align_as(tensor *out__, tensor self, tensor other) {
   )
 }
 
-tensor *atg_align_tensors(tensor *tensors_data, int tensors_len) {
+void atg_align_tensors(tensor *out__, tensor *tensors_data, int tensors_len) {
   PROTECT(
     auto outputs__ = torch::align_tensors(of_carray_tensor(tensors_data, tensors_len));
     int sz = outputs__.size();
-    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
+    // torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
     for (int i = 0; i < sz; ++i)
       out__[i] = new torch::Tensor(outputs__[i]);
     out__[sz] = nullptr;
-    return out__;
+    // return out__;
   )
 }
 
@@ -913,17 +913,27 @@ void atg_bmm_out(tensor *out__, tensor out, tensor self, tensor mat2) {
   )
 }
 
-tensor *atg_broadcast_tensors(tensor *tensors_data, int tensors_len) {
+void atg_broadcast_tensors(tensor *out__, tensor *tensors_data, int tensors_len) {
   PROTECT(
     auto outputs__ = torch::broadcast_tensors(of_carray_tensor(tensors_data, tensors_len));
     int sz = outputs__.size();
-    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
     for (int i = 0; i < sz; ++i)
       out__[i] = new torch::Tensor(outputs__[i]);
     out__[sz] = nullptr;
-    return out__;
   )
 }
+
+// tensor *atg_broadcast_tensors(tensor *tensors_data, int tensors_len) {
+//   PROTECT(
+//     auto outputs__ = torch::broadcast_tensors(of_carray_tensor(tensors_data, tensors_len));
+//     int sz = outputs__.size();
+//     torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
+//     for (int i = 0; i < sz; ++i)
+//       out__[i] = new torch::Tensor(outputs__[i]);
+//     out__[sz] = nullptr;
+//     return out__;
+//   )
+// }
 
 void atg_cartesian_prod(tensor *out__, tensor *tensors_data, int tensors_len) {
   PROTECT(
@@ -1044,15 +1054,15 @@ void atg_cholesky_solve_out(tensor *out__, tensor out, tensor self, tensor input
   )
 }
 
-tensor *atg_chunk(tensor self, int64_t chunks, int64_t dim) {
+void atg_chunk(tensor *out__, tensor self, int64_t chunks, int64_t dim) {
   PROTECT(
     auto outputs__ = torch::chunk(*self, chunks, dim);
     int sz = outputs__.size();
-    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
+    // torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
     for (int i = 0; i < sz; ++i)
       out__[i] = new torch::Tensor(outputs__[i]);
     out__[sz] = nullptr;
-    return out__;
+    // return out__;
   )
 }
 
@@ -3757,15 +3767,15 @@ void atg_median_out(tensor *out__, tensor values, tensor indices, tensor self, i
   )
 }
 
-tensor *atg_meshgrid(tensor *tensors_data, int tensors_len) {
+void atg_meshgrid(tensor *out__, tensor *tensors_data, int tensors_len) {
   PROTECT(
     auto outputs__ = torch::meshgrid(of_carray_tensor(tensors_data, tensors_len));
     int sz = outputs__.size();
-    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
+    // torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
     for (int i = 0; i < sz; ++i)
       out__[i] = new torch::Tensor(outputs__[i]);
     out__[sz] = nullptr;
-    return out__;
+    // return out__;
   )
 }
 
@@ -4325,15 +4335,15 @@ void atg_nonzero(tensor *out__, tensor self) {
   )
 }
 
-tensor *atg_nonzero_numpy(tensor self) {
+void atg_nonzero_numpy(tensor *out__, tensor self) {
   PROTECT(
     auto outputs__ = torch::nonzero_numpy(*self);
     int sz = outputs__.size();
-    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
+    // torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
     for (int i = 0; i < sz; ++i)
       out__[i] = new torch::Tensor(outputs__[i]);
     out__[sz] = nullptr;
-    return out__;
+    // return out__;
   )
 }
 
@@ -5931,27 +5941,27 @@ void atg_sparse_resize_and_clear_(tensor *out__, tensor self, int64_t *size_data
   )
 }
 
-tensor *atg_split(tensor self, int64_t split_size, int64_t dim) {
+void atg_split(tensor *out__, tensor self, int64_t split_size, int64_t dim) {
   PROTECT(
     auto outputs__ = torch::split(*self, split_size, dim);
     int sz = outputs__.size();
-    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
+    // torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
     for (int i = 0; i < sz; ++i)
       out__[i] = new torch::Tensor(outputs__[i]);
     out__[sz] = nullptr;
-    return out__;
+    // return out__;
   )
 }
 
-tensor *atg_split_with_sizes(tensor self, int64_t *split_sizes_data, int split_sizes_len, int64_t dim) {
+void atg_split_with_sizes(tensor *out__, tensor self, int64_t *split_sizes_data, int split_sizes_len, int64_t dim) {
   PROTECT(
     auto outputs__ = torch::split_with_sizes(*self, torch::IntArrayRef(split_sizes_data, split_sizes_len), dim);
     int sz = outputs__.size();
-    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
+    // torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
     for (int i = 0; i < sz; ++i)
       out__[i] = new torch::Tensor(outputs__[i]);
     out__[sz] = nullptr;
-    return out__;
+    // return out__;
   )
 }
 
@@ -6535,15 +6545,15 @@ void atg_type_as(tensor *out__, tensor self, tensor other) {
   )
 }
 
-tensor *atg_unbind(tensor self, int64_t dim) {
+void atg_unbind(tensor *out__, tensor self, int64_t dim) {
   PROTECT(
     auto outputs__ = torch::unbind(*self, dim);
     int sz = outputs__.size();
-    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
+    // torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
     for (int i = 0; i < sz; ++i)
       out__[i] = new torch::Tensor(outputs__[i]);
     out__[sz] = nullptr;
-    return out__;
+    // return out__;
   )
 }
 
@@ -6856,15 +6866,13 @@ void atg_view_as(tensor *out__, tensor self, tensor other) {
   )
 }
 
-tensor *atg_where(tensor condition) {
+void atg_where(tensor *out__, tensor condition) {
   PROTECT(
     auto outputs__ = torch::where(*condition);
     int sz = outputs__.size();
-    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * sizeof(torch::Tensor*));
     for (int i = 0; i < sz; ++i)
       out__[i] = new torch::Tensor(outputs__[i]);
     out__[sz] = nullptr;
-    return out__;
   )
 }
 
