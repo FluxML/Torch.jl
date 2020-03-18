@@ -552,7 +552,7 @@ void ati_to_tensor(tensor *out__, ivalue i) {
 
 void ati_tuple_length(int *out__, ivalue i) {
   PROTECT(
-    out__ = i->toTuple()->elements().size();
+    out__[0] = i->toTuple()->elements().size();
   )
   // return -1;
 }
