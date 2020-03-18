@@ -322,7 +322,7 @@ void at_run_backward(tensor *tensors,
   )
 }
 
-optimizer ato_adam(double learning_rate,
+void ato_adam(optimizer *out__, double learning_rate,
                    double beta1,
                    double beta2,
                    double weight_decay) {
@@ -332,12 +332,12 @@ optimizer ato_adam(double learning_rate,
         .beta1(beta1)
         .beta2(beta2)
         .weight_decay(weight_decay);
-    return new torch::optim::Adam(vector<torch::Tensor>(), options);
+    out__[0] = new torch::optim::Adam(vector<torch::Tensor>(), options);
   )
-  return nullptr;
+  // return nullptr;
 }
 
-optimizer ato_rmsprop(double learning_rate,
+void ato_rmsprop(optimizer *out__, double learning_rate,
                       double alpha,
                       double eps,
                       double weight_decay,
@@ -351,12 +351,12 @@ optimizer ato_rmsprop(double learning_rate,
         .weight_decay(weight_decay)
         .momentum(momentum)
         .centered(centered != 0);
-      return new torch::optim::RMSprop(vector<torch::Tensor>(), options);
+      out__[0] = new torch::optim::RMSprop(vector<torch::Tensor>(), options);
     )
-  return nullptr;
+  // return nullptr;
 }
 
-optimizer ato_sgd(double learning_rate,
+void ato_sgd(optimizer *out__, double learning_rate,
                   double momentum,
                   double dampening,
                   double weight_decay,
@@ -368,9 +368,9 @@ optimizer ato_sgd(double learning_rate,
       .dampening(dampening)
       .weight_decay(weight_decay)
       .nesterov(nesterov);
-    return new torch::optim::SGD(vector<torch::Tensor>(), options);
+    out__[0] = new torch::optim::SGD(vector<torch::Tensor>(), options);
   )
-  return nullptr;
+  // return nullptr;
 }
 
 void ato_add_parameters(optimizer t, tensor *tensors, int ntensors) {
@@ -417,14 +417,14 @@ void ato_free(optimizer t) {
   delete(t);
 }
 
-scalar ats_int(int64_t v) {
-  PROTECT(return new torch::Scalar(v);)
-  return nullptr;
+void ats_int(scalar *out__, int64_t v) {
+  PROTECT(out__[0] = new torch::Scalar(v);)
+  // return nullptr;
 }
 
-scalar ats_float(double v) {
-  PROTECT(return new torch::Scalar(v);)
-  return nullptr;
+void ats_float(scalar *out__, double v) {
+  PROTECT(out__[0] = new torch::Scalar(v);)
+  // return nullptr;
 }
 
 void ats_free(scalar s) {
