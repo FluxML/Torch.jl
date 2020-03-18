@@ -431,33 +431,33 @@ void ats_free(scalar s) {
   delete(s);
 }
 
-int atc_cuda_device_count() {
-  PROTECT(return torch::cuda::device_count();)
-  return -1;
+void atc_cuda_device_count(int *i) {
+  PROTECT(i[0] = torch::cuda::device_count();)
+  // return -1;
 }
 
-int atc_cuda_is_available() {
-  PROTECT(return torch::cuda::is_available();)
-  return -1;
+void atc_cuda_is_available(int *i) {
+  PROTECT(i[0] = torch::cuda::is_available();)
+  // return -1;
 }
 
-int atc_cudnn_is_available() {
-  PROTECT(return torch::cuda::cudnn_is_available();)
-  return -1;
+void atc_cudnn_is_available(int *i) {
+  PROTECT(i[0] = torch::cuda::cudnn_is_available();)
+  // return -1;
 }
 
 void atc_set_benchmark_cudnn(int b) {
   at::globalContext().setBenchmarkCuDNN(b);
 }
 
-module atm_load(char *filename) {
+void atm_load(char *filename, module *out__) {
   PROTECT(
-    return new torch::jit::script::Module(torch::jit::load(filename));
+    out__[0] = new torch::jit::script::Module(torch::jit::load(filename));
   )
-  return nullptr;
+  // return nullptr;
 }
 
-tensor atm_forward(module m, tensor *tensors, int ntensors) {
+void atm_forward(tensor *out__, module m, tensor *tensors, int ntensors) {
   PROTECT(
     std::vector<torch::jit::IValue> inputs;
     for (int i = 0; i < ntensors; ++i)
@@ -465,12 +465,12 @@ tensor atm_forward(module m, tensor *tensors, int ntensors) {
     torch::jit::IValue output = m->forward(inputs);
     if (!output.isTensor())
       jl_error("forward did not return a tensor");
-    return new torch::Tensor(output.toTensor());
+    out__[0] = new torch::Tensor(output.toTensor());
   )
-  return nullptr;
+  // return nullptr;
 }
 
-ivalue atm_forward_(module m,
+void atm_forward_(ivalue *out__, module m,
                     ivalue *ivalues,
                     int nivalues) {
   PROTECT(
@@ -478,83 +478,83 @@ ivalue atm_forward_(module m,
     for (int i = 0; i < nivalues; ++i)
       inputs.push_back(*(ivalues[i]));
     torch::jit::IValue output = m->forward(inputs);
-    return new torch::jit::IValue(output);
+    out__[0] = new torch::jit::IValue(output);
   )
-  return nullptr;
+  // return nullptr;
 }
 
 void atm_free(module m) {
   delete(m);
 }
 
-ivalue ati_tensor(tensor t) {
+void ati_tensor(ivalue *out__, tensor t) {
   PROTECT(
-    return new torch::jit::IValue(*t);
+    out__[0] = new torch::jit::IValue(*t);
   )
-  return nullptr;
+  // return nullptr;
 }
 
-ivalue ati_int(int64_t i) {
+void ati_int(ivalue *out__, int64_t i) {
   PROTECT(
-    return new torch::jit::IValue(i);
+    out__[0] = new torch::jit::IValue(i);
   )
-  return nullptr;
+  // return nullptr;
 }
 
-ivalue ati_double(double d) {
+void ati_double(ivalue *out__, double d) {
   PROTECT(
-    return new torch::jit::IValue(d);
+    out__[0] = new torch::jit::IValue(d);
   )
-  return nullptr;
+  // return nullptr;
 }
 
-ivalue ati_tuple(ivalue *is, int nvalues) {
+void ati_tuple(ivalue *out__, ivalue *is, int nvalues) {
   PROTECT(
     vector<torch::jit::IValue> vec;
     for (int i = 0; i < nvalues; ++i) vec.push_back(*(is[i]));
-    return new torch::jit::IValue(torch::ivalue::Tuple::create(vec));
+    out__[0] = new torch::jit::IValue(torch::ivalue::Tuple::create(vec));
   )
-  return nullptr;
+  // return nullptr;
 }
 
-int ati_tag(ivalue i) {
+void ati_tag(int *out__, ivalue i) {
   PROTECT(
-    if (i->isTensor()) return 0;
-    else if (i->isInt()) return 1;
-    else if (i->isDouble()) return 2;
-    else if (i->isTuple()) return 3;
-    jl_error(("unsupported tag" + i->tagKind()).c_str());
-    return -1;
+    if (i->isTensor()) out__[0] = 0;
+    else if (i->isInt()) out__[0] = 1;
+    else if (i->isDouble()) out__[0] = 2;
+    else if (i->isTuple()) out__[0] = 3;
+    // jl_error(("unsupported tag" + i->tagKind()).c_str());
+    // return -1;
   )
-  return -1;
+  // return -1;
 }
 
-int64_t ati_to_int(ivalue i) {
+void ati_to_int(int64_t *out__, ivalue i) {
   PROTECT(
-    return i->toInt();
+    out__[0] = i->toInt();
   )
-  return -1;
+  // return -1;
 }
 
-double ati_to_double(ivalue i) {
+void ati_to_double(double *out__, ivalue i) {
   PROTECT(
-    return i->toDouble();
+    out__[0] = i->toDouble();
   )
-  return 0.;
+  // return 0.;
 }
 
-tensor ati_to_tensor(ivalue i) {
+void ati_to_tensor(tensor *out__, ivalue i) {
   PROTECT(
-    return new torch::Tensor(i->toTensor());
+    out__[0] = new torch::Tensor(i->toTensor());
   )
-  return nullptr;
+  // return nullptr;
 }
 
-int ati_tuple_length(ivalue i) {
+void ati_tuple_length(int *out__, ivalue i) {
   PROTECT(
-    return i->toTuple()->elements().size();
+    out__ = i->toTuple()->elements().size();
   )
-  return -1;
+  // return -1;
 }
 
 void ati_to_tuple(ivalue i,
