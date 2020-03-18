@@ -12,8 +12,6 @@ function no_grad(f; flag = 0)
   f()
 end
 
-sync() = at_sync()
-
 async_free!(x) = let x = x, ptr = x.ptr, oid = objectid(x)
   @async begin
     free!(x)
@@ -22,13 +20,11 @@ async_free!(x) = let x = x, ptr = x.ptr, oid = objectid(x)
 end
 
 mutable struct Tensor{T, N} <: AbstractArray{T,N}
-  ptr::Union{Ptr,CuPtr}
+  ptr::CuPtr
   device::Int
 
   function Tensor{T,N}(ptr::Union{CuPtr,Ptr}, dev::Int) where {T,N}
-    cuptr = convert(CuPtr{Cvoid}, Base.bitcast(UInt, ptr))
-    cuptr = convert(CuPtr{Float32}, cuptr)
-    obj = new(cuptr, dev)
+    obj = new(ptr, dev)
     finalizer(async_free!, obj)
     # TURN_ON_LOGGING == true && (logdict[ptr] = (size(obj), stacktrace()))
     obj
