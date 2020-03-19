@@ -16,7 +16,7 @@ char* myerr = "";
     x \
   } catch (const exception& e) { \
     myerr = strdup(e.what()); \
-    jl_error(strdup(e.what())); \
+    /* jl_error(strdup(e.what())); */ \
   }
 #else
 typedef void *tensor;
@@ -36,8 +36,8 @@ void at_empty_cache();
 void at_no_grad(int flag);
 void at_sync();
 void at_from_blob(tensor *, void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev);
-void at_tensor_of_data(tensor *, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type);
-void at_copy_data(tensor tensor, void *vs, int64_t numel, int element_size_in_bytes);
+int at_tensor_of_data(tensor *, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type);
+int at_copy_data(tensor tensor, void *vs, int64_t numel, int element_size_in_bytes);
 void at_float_vec(double *values, int value_len, int type);
 void at_int_vec(int64_t *values, int value_len, int type);
 
@@ -116,7 +116,7 @@ void atc_cudnn_is_available(int *);
 void atc_set_benchmark_cudnn(int b);
 
 void atm_load(char *, module *);
-void atm_forward(tensor *, module, tensor *tensors, int ntensors);
+int atm_forward(tensor *, module, tensor *tensors, int ntensors);
 void atm_forward_(ivalue *, module,
                     ivalue *ivalues,
                     int nivalues);
@@ -131,7 +131,7 @@ void ati_to_tensor(tensor *, ivalue);
 void ati_to_int(int64_t *, ivalue);
 void ati_to_double(double *, ivalue);
 void ati_tuple_length(int *, ivalue);
-void ati_to_tuple(ivalue, ivalue *, int);
+int ati_to_tuple(ivalue, ivalue *, int);
 
 void ati_tag(int *, ivalue);
 

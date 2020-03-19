@@ -60,25 +60,28 @@ void at_sync() {
   // torch::cuda::synchronize();
 }
 
-void at_tensor_of_data(tensor *out__, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type) {
+int at_tensor_of_data(tensor *out__, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type) {
   PROTECT(
     // auto options = torch::TensorOptions().dtype(torch::ScalarType(type)).requires_grad(false);
     torch::Tensor tensor = torch::zeros(torch::IntArrayRef(dims, ndims), torch::ScalarType(type));
     if (element_size_in_bytes != tensor.element_size())
-      jl_error("incoherent element sizes in bytes");
+      // jl_error("incoherent element sizes in bytes");
+      return -1;
     void *tensor_data = tensor.data_ptr();
     memcpy(tensor_data, vs, tensor.numel() * element_size_in_bytes);
     out__[0] = new torch::Tensor(tensor);
   )
-  // return nullptr;
+  return 0;
 }
 
-void at_copy_data(tensor tensor, void *vs, int64_t numel, int elt_size_in_bytes) {
+int at_copy_data(tensor tensor, void *vs, int64_t numel, int elt_size_in_bytes) {
   PROTECT(
     if (elt_size_in_bytes != tensor->element_size())
-      jl_error("incoherent element sizes in bytes");
+      // jl_error("incoherent element sizes in bytes");
+      return -1;
     if (numel != tensor->numel())
-      jl_error("incoherent number of elements");
+      // jl_error("incoherent number of elements");
+      return -1;
     if (tensor->device().type() != at::kCPU) {
       torch::Tensor tmp_tensor = tensor->to(at::kCPU);
       void *tensor_data = tmp_tensor.contiguous().data_ptr();
@@ -89,6 +92,7 @@ void at_copy_data(tensor tensor, void *vs, int64_t numel, int elt_size_in_bytes)
       memcpy(vs, tensor_data, numel * elt_size_in_bytes);
     }
   )
+  return 0;
 }
 
 void at_float_vec(tensor *out__, double *vs, int len, int type) {
@@ -457,17 +461,19 @@ void atm_load(char *filename, module *out__) {
   // return nullptr;
 }
 
-void atm_forward(tensor *out__, module m, tensor *tensors, int ntensors) {
+int atm_forward(tensor *out__, module m, tensor *tensors, int ntensors) {
   PROTECT(
     std::vector<torch::jit::IValue> inputs;
     for (int i = 0; i < ntensors; ++i)
       inputs.push_back(*(tensors[i]));
     torch::jit::IValue output = m->forward(inputs);
     if (!output.isTensor())
-      jl_error("forward did not return a tensor");
+      // jl_error("forward did not return a tensor");
+      return -1;
     out__[0] = new torch::Tensor(output.toTensor());
   )
   // return nullptr;
+  return 0;
 }
 
 void atm_forward_(ivalue *out__, module m,
@@ -557,17 +563,19 @@ void ati_tuple_length(int *out__, ivalue i) {
   // return -1;
 }
 
-void ati_to_tuple(ivalue i,
+int ati_to_tuple(ivalue i,
                   ivalue *outputs,
                   int noutputs) {
   PROTECT(
     auto vec = i->toTuple()->elements();
     if (vec.size() != noutputs) {
-      jl_error("unexpected tuple size");
+      // jl_error("unexpected tuple size");
+      return -1;
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = new torch::jit::IValue(vec[i]);
   )
+  return 0;
 }
 
 
