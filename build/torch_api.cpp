@@ -31,14 +31,14 @@ void at_from_blob(tensor *out__, void *data, int64_t *dims, int ndims, int64_t *
   PROTECT(
     auto options = torch::TensorOptions().device(torch::kCUDA, dev).requires_grad(false);
     torch::Tensor tens = torch::from_blob(data, torch::IntArrayRef(dims, ndims), torch::IntArrayRef(strides, nstrides), options);
-    out__[1] = new torch::Tensor(tens);
+    out__[0] = new torch::Tensor(tens);
   )
   // return nullptr;
 }
 
 void at_new_tensor(tensor *out__) {
   PROTECT(
-    out__[1] = new torch::Tensor();
+    out__[0] = new torch::Tensor();
   )
   // return nullptr;
 }
