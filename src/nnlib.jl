@@ -24,7 +24,7 @@ function NNlib.relu(t::Tensor{T,N}) where {T,N}
   Tensor{T,N}(ptr[], on(t))
 end
 
-function NNlib.relu(t::Tensor{T,N}) where {T,N}
+function NNlib.leakyrelu(t::Tensor{T,N}) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
 
   atg_leaky_relu(ptr, t.ptr)
