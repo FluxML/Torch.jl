@@ -16,7 +16,6 @@ char* myerr = "";
     x \
   } catch (const exception& e) { \
     myerr = strdup(e.what()); \
-    /* jl_error(strdup(e.what())); */ \
   }
 #else
 typedef void *tensor;
