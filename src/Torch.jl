@@ -10,6 +10,7 @@ using NNlib: PoolDims
 TURN_ON_LOGGING = false
 
 # include("wrap2.jl")
+include("error.jl")
 
 include("wrap/libtorch_common.jl")
 include("wrap/libdoeye_caml_generated.jl")
