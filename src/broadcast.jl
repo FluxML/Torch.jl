@@ -29,6 +29,7 @@ function broadcasted(::typeof(*), t1::Tensor{T,4}, t2::Tensor) where {T}
 end
 
 broadcasted(::typeof(NNlib.relu), t::Tensor) = NNlib.relu(t)
+broadcasted(::typeof(NNlib.leakyrelu), t::Tensor) = NNlib.leakyrelu(t)
 broadcasted(::typeof(identity), t::Tensor) = identity(t)
 
 for op in (:+, :-, :*, :/)
