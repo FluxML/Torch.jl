@@ -149,6 +149,9 @@ function tensor(x::AbstractArray{T,N}; dev = -1) where {T,N}
 end
 # tensor(x) = x
 
+Base.print_array(io::IO, t::Tensor) = Base.print_array(io, collect(t))
+Base.show_vector(io::IO, t::Tensor) = Base.show_vector(io, collect(t))
+
 function from_blob(x::AbstractArray{T,N}; dev = -1) where {T,N}
   sz = reverse(collect(size(x)))
   st = reverse(collect(strides(x)))
