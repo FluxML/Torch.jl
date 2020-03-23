@@ -28,7 +28,7 @@ typedef void *ivalue;
 typedef void *ngg;
 #endif
 
-// char* get_last_error();
+int get_last_error(char *);
 int flush_error();
 
 int at_manual_seed(int64_t);

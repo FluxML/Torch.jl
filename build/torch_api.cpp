@@ -4,14 +4,19 @@
 #include<c10/cuda/CUDACachingAllocator.h>
 #include<c10/cuda/CUDAStream.h>
 #include<vector>
+// #include<caml/fail.h>
+// #include<julia.h>
 #include "torch_api.h"
 
 #define caml_invalid_argument printf
 using namespace std;
 
-// char* get_last_error() {
-//   return myerr;
-// }
+int get_last_error(char *err) {
+   int len = strlen(myerr);
+   for (int i = 0; i < len; ++i) err[i] = myerr[i];
+   err[len] = '\0'; 
+   return 0;
+}
 
 int flush_error() {
   PROTECT(
@@ -87,7 +92,7 @@ int at_tensor_of_data(tensor *out__, void *vs, int64_t *dims, int ndims, int ele
     // auto options = torch::TensorOptions().dtype(torch::ScalarType(type)).requires_grad(false);
     torch::Tensor tensor = torch::zeros(torch::IntArrayRef(dims, ndims), torch::ScalarType(type));
     if (element_size_in_bytes != tensor.element_size())
-      // jl_error("incoherent element sizes in bytes");
+      myerr = strdup("incoherent element sizes in bytes");
       return 1;
     void *tensor_data = tensor.data_ptr();
     memcpy(tensor_data, vs, tensor.numel() * element_size_in_bytes);
@@ -100,10 +105,10 @@ int at_tensor_of_data(tensor *out__, void *vs, int64_t *dims, int ndims, int ele
 int at_copy_data(tensor tensor, void *vs, int64_t numel, int elt_size_in_bytes) {
   PROTECT(
     if (elt_size_in_bytes != tensor->element_size())
-      // jl_error("incoherent element sizes in bytes");
+      myerr = strdup("incoherent element sizes in bytes");
       return 1;
     if (numel != tensor->numel())
-      // jl_error("incoherent number of elements");
+      myerr = strdup("incoherent number of elements");
       return 1;
     if (tensor->device().type() != at::kCPU) {
       torch::Tensor tmp_tensor = tensor->to(at::kCPU);
@@ -617,7 +622,7 @@ int atm_forward(tensor *out__, module m, tensor *tensors, int ntensors) {
       inputs.push_back(*(tensors[i]));
     torch::jit::IValue output = m->forward(inputs);
     if (!output.isTensor())
-      // jl_error("forward did not return a tensor");
+      myerr = strdup("forward did not return a tensor");
       return 1;
     out__[0] = new torch::Tensor(output.toTensor());
     return 0;
@@ -693,7 +698,7 @@ int ati_tag(int *out__, ivalue i) {
     else if (i->isInt()) out__[0] = 1;
     else if (i->isDouble()) out__[0] = 2;
     else if (i->isTuple()) out__[0] = 3;
-    // jl_error(("unsupported tag" + i->tagKind()).c_str());
+    myerr = strdup(("unsupported tag" + i->tagKind()).c_str());
     return 0;
   )
 return 1;
@@ -739,7 +744,7 @@ int ati_to_tuple(ivalue i,
   PROTECT(
     auto vec = i->toTuple()->elements();
     if (vec.size() != noutputs) {
-      // jl_error("unexpected tuple size");
+      myerr = strdup("unexpected tuple size");
       return 1;
     }
     for (int i = 0; i < noutputs; ++i)
