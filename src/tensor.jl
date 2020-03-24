@@ -5,6 +5,8 @@ const options = Dict(
 
 at_grad_set_enabled(0)
 
+struct TorchGPUOOMError <: Exception end
+
 function no_grad(f; flag = 0)
   at_no_grad(flag)
   f()
@@ -37,7 +39,6 @@ function Tensor(::Type{T}, sz::Int...; dev = -1) where T
   ptr = Ref(Ptr{Cvoid}())
   dtype = options[T]
   sz = reverse(collect(sz))
-  # sz = length(sz) == 1 ? [sz;1] : sz
   mem = dev
   d = Ref(pointer(sz))
   len = length(sz)
@@ -54,10 +55,17 @@ Tensor(sz::Int; dev = -1) = Tensor(Float32, Int(sz), dev = dev)
 #   Tensor{T,N}(ptr, on(ptr))
 # end
 
+function at_dim(t::Tensor)
+  i = Int32[-1]
+  at_dim(i, t.ptr)
+  i[1]
+end
+
 function Base.size(t::Tensor)
-  dims = at_dim(t.ptr)
+  dims = at_dim(t)
   sz = zeros(Int32, dims)
   at_shape(t.ptr, pointer(sz))
+  # s = Int.(tuple(sz...))
   if t isa TensorMatrix
     Int.(tuple(sz...))
   else
@@ -143,8 +151,9 @@ function tensor(x::AbstractArray{T,N}; dev = -1) where {T,N}
   typ = options[T] 
   parr = Ref(pointer(x))
 
-  op = at_tensor_of_data(parr.x, sz, nd, el_sz_in_bytes, typ)
-  opt = Tensor{Float32, N}(op, dev)
+  ptr = Ref(Ptr{Cvoid}())
+  at_tensor_of_data(ptr, parr.x, sz, nd, el_sz_in_bytes, typ)
+  opt = Tensor{Float32, N}(ptr[], dev)
   to(opt, dev = dev)
 end
 # tensor(x) = x
@@ -155,8 +164,9 @@ Base.show_vector(io::IO, t::Tensor) = Base.show_vector(io, collect(t))
 function from_blob(x::AbstractArray{T,N}; dev = -1) where {T,N}
   sz = reverse(collect(size(x)))
   st = reverse(collect(strides(x)))
-  op = at_from_blob(pointer(x), sz, length(sz), st, length(st), dev)
-  Tensor{T,N}(op, dev)
+  ptr = Ref(Ptr{Cvoid}())
+  at_from_blob(ptr, pointer(x), sz, length(sz), st, length(st), dev)
+  Tensor{T,N}(ptr[], dev)
 end
 
 function to(x::Tensor{T,N}; dev = -1) where {T,N}
