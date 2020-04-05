@@ -91,9 +91,10 @@ int at_tensor_of_data(tensor *out__, void *vs, int64_t *dims, int ndims, int ele
   PROTECT(
     // auto options = torch::TensorOptions().dtype(torch::ScalarType(type)).requires_grad(false);
     torch::Tensor tensor = torch::zeros(torch::IntArrayRef(dims, ndims), torch::ScalarType(type));
-    if (element_size_in_bytes != tensor.element_size())
+    if (element_size_in_bytes != tensor.element_size()) {
       myerr = strdup("incoherent element sizes in bytes");
       return 1;
+    }
     void *tensor_data = tensor.data_ptr();
     memcpy(tensor_data, vs, tensor.numel() * element_size_in_bytes);
     out__[0] = new torch::Tensor(tensor);
@@ -104,12 +105,14 @@ int at_tensor_of_data(tensor *out__, void *vs, int64_t *dims, int ndims, int ele
 
 int at_copy_data(tensor tensor, void *vs, int64_t numel, int elt_size_in_bytes) {
   PROTECT(
-    if (elt_size_in_bytes != tensor->element_size())
+    if (elt_size_in_bytes != tensor->element_size()) {
       myerr = strdup("incoherent element sizes in bytes");
       return 1;
-    if (numel != tensor->numel())
+    }
+    if (numel != tensor->numel()) {
       myerr = strdup("incoherent number of elements");
       return 1;
+    }
     if (tensor->device().type() != at::kCPU) {
       torch::Tensor tmp_tensor = tensor->to(at::kCPU);
       void *tensor_data = tmp_tensor.contiguous().data_ptr();
@@ -621,9 +624,10 @@ int atm_forward(tensor *out__, module m, tensor *tensors, int ntensors) {
     for (int i = 0; i < ntensors; ++i)
       inputs.push_back(*(tensors[i]));
     torch::jit::IValue output = m->forward(inputs);
-    if (!output.isTensor())
+    if (!output.isTensor()) {
       myerr = strdup("forward did not return a tensor");
       return 1;
+    }
     out__[0] = new torch::Tensor(output.toTensor());
     return 0;
   )
@@ -698,9 +702,10 @@ int ati_tag(int *out__, ivalue i) {
     else if (i->isInt()) out__[0] = 1;
     else if (i->isDouble()) out__[0] = 2;
     else if (i->isTuple()) out__[0] = 3;
-    myerr = strdup(("unsupported tag" + i->tagKind()).c_str());
+    // myerr = strdup(("unsupported tag" + i->tagKind()).c_str());
     return 0;
   )
+  myerr = strdup(("unsupported tag" + i->tagKind()).c_str());
 return 1;
 }
 
