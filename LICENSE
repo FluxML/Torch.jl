@@ -20,8 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-The code in this repository - the C wrapper and the parts in Julia - are licensed under
-the MIT license. The PyTorch library installed as a consequence of installing this library,
-is separately licensed by PyTorch. The source code can be found at
-https://github.com/pytorch/pytorch/blob/master/LICENSE
-and its license can be found at https://github.com/pytorch/pytorch/blob/master/LICENSE
+The code in this repository - the C wrapper and the parts in Julia - are
+licensed under the MIT license. The PyTorch library installed as a consequence
+of installing this library, via the Torch_jll artifact is separately licensed
+by PyTorch. The source code can be found at
+https://github.com/pytorch/pytorch/blob/master/LICENSE and its license can be
+found at https://github.com/pytorch/pytorch/blob/master/LICENSE
