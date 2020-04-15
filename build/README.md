@@ -1,6 +1,6 @@
 # Building the Wrapper
 
-The project can be built given that we can provide the paths to working Torch and CUDA/ CUDNN projects. (And of course, Julia).
+The project can be built given that we can provide the paths to working Torch and CUDA/ CUDNN projects. The binaries can also be downloaded from the [official libtorch binaries](https://pytorch.org/get-started/locally/), which is what the wrapper is based on. This currently supports torch v1.4.0.
 
 ```code
 $ mkdir build && cd build
