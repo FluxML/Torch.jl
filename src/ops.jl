@@ -27,7 +27,7 @@ end
 function Base.cat(ts::Tensor{T,N}...; dims = 1) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
   ts_arr = [i.ptr for i in ts]
-  atg_cat(ptr, ts_arr, length(ts_arr), dims - 1)
+  atg_cat(ptr, ts_arr, length(ts_arr), N - dims)
   Tensor{T,N}(ptr[], on(ts[1]))
 end
 
@@ -52,7 +52,7 @@ end
 function _softmax(input::Tensor{T,N}, dims = 1, dtype = options[T]) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
 
-  atg_softmax(ptr, input.ptr, dims - 1, dtype)
+  atg_softmax(ptr, input.ptr, N - dims, dtype)
   Tensor{T,N}(ptr[], on(input))
 end
 
@@ -108,4 +108,10 @@ function _maxpool_with_inds(t::Tensor{T,M}, pdims::PoolDims{N,K,S,P,D};
   )
 
   Tensor{T,M}(ptr[1], on(t)), Tensor{T,M}(ptr[2], on(t))
+end
+
+function _chunk(t::Tensor{T,N}, chunks=2, dims=1) where {T,N}
+  ts = [Ptr{Cvoid}() for _ in 1:chunks]
+  atg_chunk(ts, t.ptr, chunks, N - dims)
+  [Tensor{T,N}(ts[i], on(t)) for i in 1:chunks]
 end
