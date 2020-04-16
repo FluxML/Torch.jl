@@ -24,7 +24,7 @@ The code in this repository - including the C wrapper and the parts relevant
 to Julia - are licensed under the MIT license. The PyTorch library installed
 as a consequence of installing this library, via the Torch_jll artifact is
 separately licensed by PyTorch. The source code can be found at
-https://github.com/pytorch/pytorch and its license can be is described as the
+https://github.com/pytorch/pytorch and its license is described as the
 following (taken verbatim from the PyTorch LICENSE):
 
 From PyTorch:
