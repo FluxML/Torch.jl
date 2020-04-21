@@ -7,10 +7,11 @@ message("${CMAKE_MODULE_PATH}")
 
 find_package(Torch REQUIRED)
 
-include_directories(SYSTEM ${Julia_INCLUDE_DIRS})
+# include_directories(SYSTEM ${Julia_INCLUDE_DIRS})
 include_directories(SYSTEM path)
 
 add_library(doeye_caml "SHARED" torch_api.cpp)
 target_link_libraries(doeye_caml "${TORCH_LIBRARIES}")
+target_link_libraries(doeye_caml "${CUDNN_LIBRARY_PATH}")
 
 set_property(TARGET doeye_caml PROPERTY CXX_STANDARD 14)
