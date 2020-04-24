@@ -1,5 +1,7 @@
 module Torch
 
+using Torch_jll
+
 export Tensor, tensor, Scalar
 
 using ZygoteRules
