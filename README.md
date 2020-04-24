@@ -1,12 +1,11 @@
 # Torch.jl
 Sensible extensions for exposing torch in Julia.
 
-This package is aimed at providing the `tensor` type, which offloads all computations over to [PyTorch](https://pytorch.org).
+This package is aimed at providing the `Tensor` type, which offloads all computations over to [PyTorch](https://pytorch.org).
 
 **Note:**
-* Needs a working libtorch v1.4 installation, with CUDA (if desired)
-  - Will be alleviated with a move to artifacts
-* For the time being please follow the build instructions [here](build/README.md)
+* Needs a machine with a CUDA GPU
+  * will need lazy artifacts
 
 ## Usage Example
 
