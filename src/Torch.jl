@@ -8,6 +8,7 @@ using ZygoteRules
 using ZygoteRules: @adjoint
 using NNlib
 using NNlib: PoolDims
+using Requires
 
 TURN_ON_LOGGING = false
 
@@ -30,4 +31,12 @@ include("broadcast.jl")
 include("statistics.jl")
 
 include("utils.jl")
+
+@init @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" do
+
+  function (tbn::Flux.BatchNorm)(x::Tensor)
+    tbn.λ.(Torch.batchnorm(x, tbn.γ,  tbn.β,  tbn.μ, tbn.σ², 0, tbn.momentum, tbn.ϵ, 1))
+  end
+end
+
 end # module
