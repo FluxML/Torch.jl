@@ -5,7 +5,7 @@ This package is aimed at providing the `Tensor` type, which offloads all computa
 
 **Note:**
 * Needs a machine with a CUDA GPU
-  * will need lazy artifacts
+  * will need lazy artifacts function without a GPU
 
 ## Usage Example
 
