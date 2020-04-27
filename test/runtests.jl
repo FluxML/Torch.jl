@@ -20,7 +20,7 @@ end
   tip = tensor(ip, dev = 0) # 0 => GPU:0 in Torch
 
   top = tresnet(tip)
-  op = resnet.layers(op)
+  op = resnet.layers(ip)
   @test top isa Tensor
   @test size(top) == size(op)
 end
