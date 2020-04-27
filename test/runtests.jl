@@ -12,4 +12,13 @@ using Torch: Tensor, tensor
   @test cr isa Array
 end
 
+@testset "Flux" begin
+  resnet = ResNet()
+  tresnet = Flux.fmap(Torch.to_tensor, resnet.layers)
 
+  ip = rand(Float32, 224, 224, 3, 1) # An RGB Image
+  tip = tensor(ip, dev = 0) # 0 => GPU:0 in Torch
+
+  op = tresnet(tip)
+  op isa Tensor
+end
