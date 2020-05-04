@@ -1,12 +1,6 @@
 module Torch
 
-using CUDAapi
-
-if has_cuda()
-  using Torch_jll
-else
-  @warn "Torch currently requires a GPU to operate normally."
-end
+using Torch_jll
 
 export Tensor, tensor, Scalar
 
