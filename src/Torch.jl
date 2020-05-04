@@ -1,6 +1,12 @@
 module Torch
 
-using Torch_jll
+using CUDAapi
+
+if has_cuda()
+  using Torch_jll
+else
+  @warn "Torch currently requires a GPU to operate normally."
+end
 
 export Tensor, tensor, Scalar
 
@@ -37,6 +43,8 @@ include("utils.jl")
   function (tbn::Flux.BatchNorm)(x::Tensor)
     tbn.λ.(Torch.batchnorm(x, tbn.γ,  tbn.β,  tbn.μ, tbn.σ², 0, tbn.momentum, tbn.ϵ, 1))
   end
+
+  Torch.tensor(x::Flux.Zygote.FillArrays.Fill; kwargs...) = Torch.tensor(collect(x); kwargs...)
 end
 
 end # module

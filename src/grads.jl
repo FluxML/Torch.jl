@@ -8,12 +8,13 @@ end
 
 const ∇conv_bias = cudnn_convolution_backward_bias
 
-function ∇conv_data(dy::Tensor{T}, w::Tensor{T},
+function ∇conv_data(dy::AbstractArray, w::Tensor{T},
                     cdims::DenseConvDims{M,K,C_in,C_out,S,P,D,F};
                     groups = 1,
                     benchmark = 0,
                     deterministic = 0) where {M,K,C_in,C_out,S,P,D,F, T}
 
+  dy_ = tensor(dy, dev = on(w))
   ptr = Ref(Ptr{Cvoid}())
   padding          = [P[1];P[3]]
   stride           = collect(S)
@@ -21,24 +22,25 @@ function ∇conv_data(dy::Tensor{T}, w::Tensor{T},
 
   s = reverse([NNlib.input_size(cdims)...,
                NNlib.channels_in(cdims),
-               size(dy, ndims(dy))])
+               size(dy_, ndims(dy_))])
 
   atg_cudnn_convolution_backward_input(ptr,
                                        s, length(s),
-                                       dy.ptr, w.ptr,
+                                       dy_.ptr, w.ptr,
                                        padding,  length(padding),
                                        stride,   length(stride),
                                        dilation, length(dilation),
                                        groups, benchmark, deterministic)
-  Tensor{T,ndims(dy)}(ptr[], on(dy))
+  Tensor{T,ndims(dy_)}(ptr[], on(dy_))
 end
 
-function ∇conv_filter(w::Tensor{T}, dy::Tensor{T},
+function ∇conv_filter(w::Tensor{T}, dy::AbstractArray{T},
                       cdims::DenseConvDims{M,K,C_in,C_out,S,P,D,F};
                       groups = 1,
                       benchmark = 0,
                       deterministic = 0) where {M,K,C_in,C_out,S,P,D,F, T}
 
+  dy_ = tensor(dy, dev = on(w))
   ptr = Ref(Ptr{Cvoid}())
   padding          = [P[1];P[3]]
   stride           = collect(S)
@@ -50,13 +52,13 @@ function ∇conv_filter(w::Tensor{T}, dy::Tensor{T},
 
   atg_cudnn_convolution_backward_weight(ptr,
                                         s, length(s),
-                                        dy.ptr, w.ptr,
+                                        dy_.ptr, w.ptr,
                                         padding,  length(padding),
                                         stride,   length(stride),
                                         dilation, length(dilation),
                                         groups, benchmark, deterministic)
 
-  Tensor{T,ndims(dy)}(ptr[], on(dy))
+  Tensor{T,ndims(dy_)}(ptr[], on(dy_))
 end
 
 function NNlib.∇maxpool(dy::Tensor{T,M}, y::Tensor{T,M}, x::Tensor{T,M},
