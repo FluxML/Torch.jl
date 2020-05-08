@@ -9,6 +9,7 @@ using ZygoteRules: @adjoint
 using NNlib
 using NNlib: PoolDims
 using Requires
+using FillArrays
 
 TURN_ON_LOGGING = false
 
@@ -24,8 +25,8 @@ const sync = at_sync
 
 include("tensor.jl")
 include("scalar.jl")
-include("ops.jl")
 include("nnlib.jl")
+include("ops.jl")
 include("normalise.jl")
 include("broadcast.jl")
 include("statistics.jl")

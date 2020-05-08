@@ -90,8 +90,8 @@ Base.IndexStyle(::Type{<:Tensor}) = IndexCartesian()
 function Base.similar(t::Tensor, ::Type{K}, sz::Int...) where {K}
   Tensor(K, sz..., dev = on(t))
 end
-Base.similar(t::Tensor{T,N}) where {T,N} = Tensor(T,size(t)..., dev = on(t))
-Base.similar(t::Tensor{T,N}, sz::Int...) where {T,N} = similar(t, T, sz..., dev = on(t))
+Base.similar(t::Tensor{T,N}) where {T,N} = Tensor(T,size(t)...)
+Base.similar(t::Tensor{T,N}, sz::Int...) where {T,N} = similar(t, T, sz...)
 
 function Base.copy(t::Tensor{T,N}) where {T,N}
   sz = size(t)
@@ -157,6 +157,7 @@ function tensor(x::AbstractArray{T,N}; dev = -1) where {T,N}
   to(opt, dev = dev)
 end
 # tensor(x) = x
+tensor(x::Fill; kwargs...) = tensor(collect(x); kwargs...)
 
 Base.print_array(io::IO, t::Tensor) = Base.print_array(io, collect(t))
 Base.show_vector(io::IO, t::Tensor) = Base.show_vector(io, collect(t))
