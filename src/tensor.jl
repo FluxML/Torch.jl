@@ -157,6 +157,8 @@ function tensor(x::AbstractArray{T,N}; dev = -1) where {T,N}
   to(opt, dev = dev)
 end
 # tensor(x) = x
+tensor(x::Tensor; kwargs...) = x
+
 
 Base.print_array(io::IO, t::Tensor) = Base.print_array(io, collect(t))
 Base.show_vector(io::IO, t::Tensor) = Base.show_vector(io, collect(t))
