@@ -31,6 +31,13 @@ function NNlib.leakyrelu(t::Tensor{T,N}) where {T,N}
   Tensor{T,N}(ptr[], on(t))
 end
 
+function NNlib.sigmoid(t::Tensor{T,N}) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+
+  atg_relu_(ptr, t.ptr)
+  Tensor{T,N}(ptr[], on(t))
+end
+
 function NNlib.softmax(t::Tensor{T,N}; dims = 1) where {T,N}
   _softmax(t, N - dims, options[T])
 end

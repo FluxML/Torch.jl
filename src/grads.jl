@@ -117,3 +117,16 @@ function NNlib.∇meanpool(dy::Tensor{T,M}, y::Tensor{T,M}, x::Tensor{T,M},
 
   Tensor{T,M}(ptr[], on(x))
 end
+
+function ∇sigmoid(dy::AbstractArray, t::Tensor{T,N}) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+
+  dy_ = tensor(dy, dev = on(t))
+  atg_sigmoid_backward(ptr, dy_.ptr, t.ptr)
+  Tensor{T,N}(ptr[], on(t))
+end
+
+@adjoint function NNlib.sigmoid(t::Tensor)
+  x = sigmoid(t)
+  x, Δ -> (∇sigmoid(Δ, x),)
+end
