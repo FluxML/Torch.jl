@@ -3,9 +3,11 @@ import Base: +, -, *, /
 for (op,fn) in zip((:+, :-, :/, :*), (atg_add, atg_sub, atg_div, atg_matmul))
   @eval function $op(t1::Tensor{T,N}, t2::Tensor{T,K}) where {T,N,K}
     ptr = Ref(Ptr{Cvoid}())
+    rank = Ref{Cint}(-1)
 
     $fn(ptr, t1.ptr, t2.ptr)
-    Tensor{T,N}(ptr[], on(t1))
+    at_dim(rank, ptr[])
+    Tensor{T,rank[]}(ptr[], on(t1))
   end
 end
 
