@@ -34,7 +34,7 @@ end
 function NNlib.sigmoid(t::Tensor{T,N}) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
 
-  atg_relu_(ptr, t.ptr)
+  atg_sigmoid(ptr, t.ptr)
   Tensor{T,N}(ptr[], on(t))
 end
 
