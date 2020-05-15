@@ -25,9 +25,9 @@ const sync = at_sync
 
 include("tensor.jl")
 include("scalar.jl")
+include("normalise.jl")
 include("nnlib.jl")
 include("ops.jl")
-include("normalise.jl")
 include("broadcast.jl")
 include("statistics.jl")
 
