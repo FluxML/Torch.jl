@@ -131,6 +131,18 @@ end
   x, Δ -> (∇sigmoid(Δ, x),)
 end
 
+function ∇leaky_relu(dy::AbstractArray, x::Tensor{T,N}, slope) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+
+  dy_ = tensor(dy, dev = on(x))
+  atg_leaky_relu_backward(ptr, dy_.ptr, x.ptr, Scalar(slope).ptr)
+  Tensor{T,N}(ptr[], on(x))
+end
+
+@adjoint function NNlib.relu(t::Tensor{T,N}) where {T,N}
+  NNlib.relu(t), Δ -> (∇leaky_relu(Δ, t, zero(T)),)
+end
+
 @adjoint function batchnorm(input, weight, bias,
                    running_mean, running_var,
                    training, momentum,
