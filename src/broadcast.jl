@@ -43,3 +43,7 @@ broadcasted(::typeof(sqrt), t::Tensor) = sqrt(t)
 function broadcasted(::typeof(copy), t::Tensor{T,N}) where {T,N}
   t
 end
+
+@adjoint function broadcasted(::typeof(NNlib.relu), t::Tensor{T}) where T
+  relu(t), Δ -> (nothing, ∇leaky_relu(Δ, t, zero(T)),)
+end
