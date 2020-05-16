@@ -39,7 +39,13 @@ include("utils.jl")
     tbn.λ.(Torch.batchnorm(x, tbn.γ,  tbn.β,  tbn.μ, tbn.σ², 0, tbn.momentum, tbn.ϵ, 1))
   end
 
-  Torch.tensor(x::Flux.Zygote.FillArrays.Fill; kwargs...) = Torch.tensor(collect(x); kwargs...)
+
+  function Zygote.accum(t1::Tensor, t2::Tensor{T,N}) where {T,N}
+    ptr = Ref(Ptr{Cvoid}())
+
+    Torch.atg_add_(ptr, t1.ptr, t2.ptr)
+    Tensor{T,N}(ptr[], Torch.on(t1))
+  end
 end
 
 end # module

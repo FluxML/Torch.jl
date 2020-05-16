@@ -95,19 +95,20 @@ end
   end
 end
 
-function NNlib.∇meanpool(dy::Tensor{T,M}, y::Tensor{T,M}, x::Tensor{T,M},
+function NNlib.∇meanpool(dy::AbstractArray, y::Tensor{T,M}, x::Tensor{T,M},
                          pdims::PoolDims{N,K,S,P,D};
                          ceil_mode = 0,
                          count_include_pad = 1,
                          divisor_override = 1) where {N,K,S,P,D, T,M}
 
   ptr = Ref(Ptr{Cvoid}())
+  dy_ = tensor(dy, dev = on(y))
   kernel = collect(NNlib.kernel_size(pdims))
   stride = collect(S)
   padding = [P[1];P[3]]
 
   atg_avg_pool2d_backward(ptr,
-                          dy.ptr, x.ptr,
+                          dy_.ptr, x.ptr,
                           kernel, length(kernel),
                           stride, length(stride),
                           padding, length(padding),
