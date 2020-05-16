@@ -42,7 +42,7 @@ function NNlib.softmax(t::Tensor{T,N}; dims = 1) where {T,N}
   _softmax(t, N - dims, options[T])
 end
 
-function NNlib.meanpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}) where {N,K,S,P,D}
+function NNlib.meanpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}; kw...) where {N,K,S,P,D}
   ks = collect(NNlib.kernel_size(pdims))
   stride = collect(S)
   pad = [P[1];P[3]]
