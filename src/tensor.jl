@@ -103,6 +103,7 @@ function Base.copyto!(dest::AbstractArray, src::Tensor)
   at_copy_data(src.ptr, dest, length(dest), sizeof(eltype(dest)))
   dest
 end
+Base.copyto!(dest::Tensor, src::Tensor) = at_copy_(dest.ptr, src.ptr)
 
 function Base.reshape(t::Tensor{T,N}, dims::Union{Colon, Int}...) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
