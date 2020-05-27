@@ -85,7 +85,8 @@ function NNlib.∇maxpool(dy::AbstractArray{T}, y::Tensor{T,M}, x::Tensor{T,M},
                           indices.ptr
   )
 
-  Tensor{T,N}(ptr[], on(x))
+  mp = Tensor{T,N}(ptr[], on(x))
+  reshape(mp, reverse(size(mp))...)
 end
 
 @adjoint function NNlib.maxpool(t::Tensor, pdims::PoolDims; ceil_mode = 0)
@@ -102,7 +103,7 @@ function NNlib.∇meanpool(dy::AbstractArray, y::Tensor{T,M}, x::Tensor{T,M},
                          divisor_override = 1) where {N,K,S,P,D, T,M}
 
   ptr = Ref(Ptr{Cvoid}())
-  dy_ = tensor(dy, dev = on(y))
+  dy_ = dy isa Base.ReshapedArray ? reshape(parent(dy), dy.dims...) : tensor(dy, dev = on(y))
   kernel = collect(NNlib.kernel_size(pdims))
   stride = collect(S)
   padding = [P[1];P[3]]
