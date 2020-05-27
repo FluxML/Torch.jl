@@ -25,12 +25,13 @@ const sync = at_sync
 
 include("tensor.jl")
 include("scalar.jl")
-include("normalise.jl")
 include("nnlib.jl")
 include("ops.jl")
+include("normalise.jl")
 include("broadcast.jl")
-include("statistics.jl")
+include("stats.jl")
 
+include("grads.jl")
 include("utils.jl")
 
 @init @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" begin
