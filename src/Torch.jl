@@ -41,12 +41,15 @@ include("utils.jl")
   end
 
 
-  function Zygote.accum(t1::Tensor, t2::Tensor{T,N}) where {T,N}
+  function Flux.Zygote.accum(t1::Tensor, t2::Tensor{T,N}) where {T,N}
     ptr = Ref(Ptr{Cvoid}())
 
     Torch.atg_add_(ptr, t1.ptr, t2.ptr)
     Tensor{T,N}(ptr[], Torch.on(t1))
   end
+
+  Flux.Zygote.@nograd at_copy_data
+  torch(x) = Flux.fmap(to_tensor, x)
 end
 
 end # module
