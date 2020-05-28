@@ -29,7 +29,7 @@ include("nnlib.jl")
 include("ops.jl")
 include("normalise.jl")
 include("broadcast.jl")
-include("stats.jl")
+include("statistics.jl")
 
 include("grads.jl")
 include("utils.jl")
