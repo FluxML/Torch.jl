@@ -8,7 +8,7 @@ for (op,fn) in zip((:+, :-, :/, :*), (atg_add, atg_sub, atg_div, atg_matmul))
 
     $fn(ptr, t1.ptr, t2.ptr)
     at_dim(rank, ptr[])
-    Tensor{T,rank[]}(ptr[], on(t1))
+    Tensor{T,Int(rank[])}(ptr[], on(t1))
   end
 end
 

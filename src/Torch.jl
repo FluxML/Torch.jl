@@ -48,7 +48,7 @@ include("utils.jl")
     Tensor{T,N}(ptr[], Torch.on(t1))
   end
 
-  Flux.Zygote.@nograd at_copy_data
+  Flux.Zygote.@nograd Torch.at_copy_data
   torch(x) = Flux.fmap(to_tensor, x)
 end
 
