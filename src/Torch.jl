@@ -35,11 +35,11 @@ include("grads.jl")
 include("utils.jl")
 
 @init @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" begin
+  using .Flux
 
   function (tbn::Flux.BatchNorm)(x::Tensor)
     tbn.λ.(Torch.batchnorm(x, tbn.γ,  tbn.β,  tbn.μ, tbn.σ², 0, tbn.momentum, tbn.ϵ, 1))
   end
-
 
   function Flux.Zygote.accum(t1::Tensor, t2::Tensor{T,N}) where {T,N}
     ptr = Ref(Ptr{Cvoid}())
