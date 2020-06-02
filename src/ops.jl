@@ -33,7 +33,7 @@ end
 
 function Base.copyto!(dest::Array, src::Union{Adjoint{T, <:TensorMatrix{T}},
                                               Transpose{T, <:TensorMatrix{T}}}) where T
-  t = Tensor(size(src)..., dev = on(parent(src)))
+  t = tensor(similar(src), dev = on(parent(src)))
   LinearAlgebra.adjoint!(t, src)
   copyto!(dest, t)
 end
@@ -56,6 +56,12 @@ function *(a::Union{Adjoint{T, <:TensorMatrix{T}},
   p = Tensor(size(a)..., dev = on(b))
   LinearAlgebra.adjoint!(p, a.parent)
   p * b
+end
+
+function Base.maximum(t::Tensor{T}; dims = :) where T
+  ptr = Ref(Ptr{Cvoid}())
+  atg_max(ptr, t.ptr)
+  Tensor{T,0}(ptr[], on(t))
 end
 
 function Base.sqrt(t::Tensor{T,N}) where {T,N}

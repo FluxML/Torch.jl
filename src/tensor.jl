@@ -38,7 +38,7 @@ TensorVecOrMat{T} = Union{TensorVector{T}, TensorMatrix{T}}
 function Tensor(::Type{T}, sz::Int...; dev = -1) where T
   ptr = Ref(Ptr{Cvoid}())
   dtype = options[T]
-  sz = reverse(collect(sz))
+  sz = length(sz) == 2 ? collect(sz) : reverse(collect(sz))
   mem = dev
   d = Ref(pointer(sz))
   len = length(sz)
@@ -90,8 +90,9 @@ Base.IndexStyle(::Type{<:Tensor}) = IndexCartesian()
 function Base.similar(t::Tensor, ::Type{K}, sz::Int...) where {K}
   Tensor(K, sz..., dev = on(t))
 end
-Base.similar(t::Tensor{T,N}) where {T,N} = Tensor(T,size(t)...)
+Base.similar(t::Tensor{T,N}) where {T,N} = Tensor(T,size(t)..., dev = on(t))
 Base.similar(t::Tensor{T,N}, sz::Int...) where {T,N} = similar(t, T, sz...)
+Base.similar(t::Tensor, dims::Tuple) = similar(t, dims...)
 
 function Base.copy(t::Tensor{T,N}) where {T,N}
   sz = size(t)

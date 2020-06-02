@@ -43,4 +43,18 @@ function ∇batchnorm_element(dy::AbstractArray, input::Tensor{T,N},
                                  weight.ptr, weight.ptr)
 
   Tensor{T,N}(ptr[], on(input))
+end
+
+@adjoint function batchnorm(input, weight, bias,
+                     running_mean, running_var,
+                        training, momentum,
+                  ep, cudnn_enabled) where {T,N}
+
+  y = batchnorm(input, weight, bias, running_mean, running_var, training, momentum, ep, cudnn_enabled)
+
+  y, Δ -> begin
+     e = ∇batchnorm_element(Δ, input, running_mean, running_var, weight)
+     vs = ∇batchnorm(Δ, input, running_mean, running_var, weight)
+     (e, vs..., nothing, nothing, nothing, nothing)
+  end
 end 
