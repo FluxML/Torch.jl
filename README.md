@@ -38,6 +38,7 @@ Or if we need more control over the device to be used like so:
 ```julia
 ip = rand(Float32, 224, 224, 3, 1) # An RGB Image
 tip = tensor(ip, dev = 0) # 0 => GPU:0 in Torch
+cpu_tensor = tensor(ip, dev = -1) # -1 => CPU:0
 ```
 
 Calling into the model is done via the usual Flux mechanism.
