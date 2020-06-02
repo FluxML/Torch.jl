@@ -38,7 +38,7 @@ TensorVecOrMat{T} = Union{TensorVector{T}, TensorMatrix{T}}
 function Tensor(::Type{T}, sz::Int...; dev = -1) where T
   ptr = Ref(Ptr{Cvoid}())
   dtype = options[T]
-  sz = reverse(collect(sz))
+  sz = length(sz) == 2 ? collect(sz) : reverse(collect(sz))
   mem = dev
   d = Ref(pointer(sz))
   len = length(sz)
@@ -91,7 +91,8 @@ function Base.similar(t::Tensor, ::Type{K}, sz::Int...) where {K}
   Tensor(K, sz..., dev = on(t))
 end
 Base.similar(t::Tensor{T,N}) where {T,N} = Tensor(T,size(t)..., dev = on(t))
-Base.similar(t::Tensor{T,N}, sz::Int...) where {T,N} = similar(t, T, sz..., dev = on(t))
+Base.similar(t::Tensor{T,N}, sz::Int...) where {T,N} = similar(t, T, sz...)
+Base.similar(t::Tensor, dims::Tuple) = similar(t, dims...)
 
 function Base.copy(t::Tensor{T,N}) where {T,N}
   sz = size(t)
@@ -103,6 +104,7 @@ function Base.copyto!(dest::AbstractArray, src::Tensor)
   at_copy_data(src.ptr, dest, length(dest), sizeof(eltype(dest)))
   dest
 end
+Base.copyto!(dest::Tensor, src::Tensor) = at_copy_(dest.ptr, src.ptr)
 
 function Base.reshape(t::Tensor{T,N}, dims::Union{Colon, Int}...) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
@@ -157,8 +159,8 @@ function tensor(x::AbstractArray{T,N}; dev = -1) where {T,N}
   to(opt, dev = dev)
 end
 # tensor(x) = x
+tensor(x::Fill; kwargs...) = tensor(collect(x); kwargs...)
 tensor(x::Tensor; kwargs...) = x
-
 
 Base.print_array(io::IO, t::Tensor) = Base.print_array(io, collect(t))
 Base.show_vector(io::IO, t::Tensor) = Base.show_vector(io, collect(t))

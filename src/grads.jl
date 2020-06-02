@@ -1,5 +1,9 @@
 import NNlib: ∇conv_data, ∇conv_filter
 
+@adjoint function tensor(x; kwargs...)
+  tensor(x; kwargs...), Δ -> (collect(Δ),)
+end
+
 function cudnn_convolution_backward_bias(t::Tensor{T,N}) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
   atg_cudnn_convolution_backward_bias(ptr, t.ptr)
@@ -14,8 +18,8 @@ function ∇conv_data(dy::AbstractArray, w::Tensor{T},
                     benchmark = 0,
                     deterministic = 0) where {M,K,C_in,C_out,S,P,D,F, T}
 
-  dy_ = tensor(dy, dev = on(w))
   ptr = Ref(Ptr{Cvoid}())
+  dy_ = tensor(dy, dev = on(w))
   padding          = [P[1];P[3]]
   stride           = collect(S)
   dilation         = collect(D)
@@ -61,47 +65,51 @@ function ∇conv_filter(w::Tensor{T}, dy::AbstractArray{T},
   Tensor{T,ndims(dy_)}(ptr[], on(dy_))
 end
 
-function NNlib.∇maxpool(dy::Tensor{T,M}, y::Tensor{T,M}, x::Tensor{T,M},
+function NNlib.∇maxpool(dy::AbstractArray{T}, y::Tensor{T,M}, x::Tensor{T,M},
                         pdims::PoolDims{N,K,S,P,D};
                         ceil_mode = 0,
-                        indices::Tensor) where {N,K,S,P,D, T,M}
+                        indices=nothing) where {N,K,S,P,D, T,M}
 
+  dy_ = tensor(dy, dev = on(y))
   ptr = Ref(Ptr{Cvoid}())
   kernel = collect(NNlib.kernel_size(pdims))
   stride = collect(S)
-  padding = [P[1];P[3]]
-
-  atg_max_pool2d_with_indices_backward(ptr, dy.ptr, x.ptr,
+  padding = Int[P[1];P[3]]
+  dilation = collect(D)
+  atg_max_pool2d_with_indices_backward(ptr, dy_.ptr, x.ptr,
                           kernel, length(kernel),
                           stride, length(stride),
                           padding, length(padding),
+                          dilation, length(dilation),
                           ceil_mode,
                           indices.ptr
   )
 
-  Tensor{T,N}(ptr[], on(x))
+  mp = Tensor{T,N}(ptr[], on(x))
+  reshape(mp, reverse(size(mp))...)
 end
 
-@adjoint function _maxpool(t::Tensor, pdims::PoolDims; ceil_mode = 0)
-  op, inds = _maxpool_with_inds(t, pdims, ceil_mode = ceil_mode)
-  op, Δ -> begin
-    ∇maxpool(Δ, y, x, pdims, ceil_mode = ceil_mode, indices = inds)
+@adjoint function NNlib.maxpool(t::Tensor, pdims::PoolDims; ceil_mode = 0)
+  y, inds = _maxpool_with_inds(t, pdims, ceil_mode = ceil_mode)
+  y, Δ -> begin
+    (∇maxpool(Δ, y, t, pdims, ceil_mode = ceil_mode, indices = inds), nothing)
   end
 end
 
-function NNlib.∇meanpool(dy::Tensor{T,M}, y::Tensor{T,M}, x::Tensor{T,M},
+function NNlib.∇meanpool(dy::AbstractArray, y::Tensor{T,M}, x::Tensor{T,M},
                          pdims::PoolDims{N,K,S,P,D};
                          ceil_mode = 0,
                          count_include_pad = 1,
                          divisor_override = 1) where {N,K,S,P,D, T,M}
 
   ptr = Ref(Ptr{Cvoid}())
+  dy_ = dy isa Base.ReshapedArray ? reshape(parent(dy), dy.dims...) : tensor(dy, dev = on(y))
   kernel = collect(NNlib.kernel_size(pdims))
   stride = collect(S)
   padding = [P[1];P[3]]
 
   atg_avg_pool2d_backward(ptr,
-                          dy.ptr, x.ptr,
+                          dy_.ptr, x.ptr,
                           kernel, length(kernel),
                           stride, length(stride),
                           padding, length(padding),
@@ -123,4 +131,16 @@ end
 @adjoint function NNlib.sigmoid(t::Tensor)
   x = sigmoid(t)
   x, Δ -> (∇sigmoid(Δ, x),)
+end
+
+function ∇leaky_relu(dy::AbstractArray, x::Tensor{T,N}, slope) where {T,N}
+  ptr = Ref(Ptr{Cvoid}())
+
+  dy_ = tensor(dy, dev = on(x))
+  atg_leaky_relu_backward(ptr, dy_.ptr, x.ptr, Scalar(slope).ptr)
+  Tensor{T,N}(ptr[], on(x))
+end
+
+@adjoint function NNlib.relu(t::Tensor{T,N}) where {T,N}
+  NNlib.relu(t), Δ -> (∇leaky_relu(Δ, t, zero(T)),)
 end

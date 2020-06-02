@@ -4,7 +4,9 @@ authors = ["dhairyagandhi96 "]
 version = "0.1.1"
 
 [deps]
+FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NNlib = "872c559c-99b0-510c-b3b7-b6c96a88d5cd"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"

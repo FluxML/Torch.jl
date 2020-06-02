@@ -4,7 +4,7 @@ using NNlib: PoolDims
 
 import NNlib: conv
 
-function NNlib.conv(x::Tensor{xT, N}, w::Tensor{T,N}, b::Tensor{T}, cdims::DenseConvDims{M,K,C_in,C_out,S,P,D,F};
+function NNlib.conv(x::Tensor{xT, N}, w::Tensor, b::Tensor{T}, cdims::DenseConvDims{M,K,C_in,C_out,S,P,D,F};
                     stride = 1, pad = 0, dilation = 1) where {T,N, xT,  M,K,C_in,C_out,S,P,D,F}
   
   op = conv2d(x, w, b, stride = collect(S), padding = [P[1];P[3]], dilation = collect(dilation))
@@ -34,7 +34,7 @@ end
 function NNlib.sigmoid(t::Tensor{T,N}) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
 
-  atg_relu_(ptr, t.ptr)
+  atg_sigmoid(ptr, t.ptr)
   Tensor{T,N}(ptr[], on(t))
 end
 
@@ -42,7 +42,13 @@ function NNlib.softmax(t::Tensor{T,N}; dims = 1) where {T,N}
   _softmax(t, N - dims, options[T])
 end
 
-function NNlib.meanpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}) where {N,K,S,P,D}
+function NNlib.∇softmax(Δ, xs::Tensor; dims = 1)
+  t = tensor(Δ, dev = on(xs))
+  sf = softmax(xs, dims=dims)
+  sf .* (t .- sum(t .* sf, dims = dims))
+end
+
+function NNlib.meanpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}; kw...) where {N,K,S,P,D}
   ks = collect(NNlib.kernel_size(pdims))
   stride = collect(S)
   pad = [P[1];P[3]]
@@ -54,5 +60,3 @@ end
 function NNlib.maxpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}) where {N,K,S,P,D}
   _maxpool(t, pdims)
 end
-
-include("grads.jl")

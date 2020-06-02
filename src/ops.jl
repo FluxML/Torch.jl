@@ -1,4 +1,5 @@
 import Base: +, -, *, /
+using LinearAlgebra
 
 for (op,fn) in zip((:+, :-, :/, :*), (atg_add, atg_sub, atg_div, atg_matmul))
   @eval function $op(t1::Tensor{T,N}, t2::Tensor{T,K}) where {T,N,K}
@@ -21,6 +22,49 @@ for op in (:+, :-, :/, :*)
     res = $op(t, t2)
     res
   end
+end
+
+# Basic LinAlg handling
+
+function LinearAlgebra.adjoint!(dest::Tensor, src::TensorMatrix{T}) where {T}
+  ptr = Ref(Ptr{Cvoid}())
+  p = parent(src)
+  atg_t(ptr, p.ptr)
+  t = TensorMatrix{T}(ptr[], on(p))
+  at_copy_(dest.ptr, t.ptr)
+end
+
+function Base.copyto!(dest::Array, src::Union{Adjoint{T, <:TensorMatrix{T}},
+                                              Transpose{T, <:TensorMatrix{T}}}) where T
+  t = tensor(similar(src), dev = on(parent(src)))
+  LinearAlgebra.adjoint!(t, src)
+  copyto!(dest, t)
+end
+
+*(a::Fill, b::Tensor) = tensor(a,dev = on(b)) * b
+*(a::Fill, b::LinearAlgebra.Adjoint{T,<:Tensor{T}}) where T = tensor(a,dev = on(parent(b))) * b
+*(a::LinearAlgebra.Adjoint{T,<:Tensor{T}}, b::Fill) where T = a * tensor(b,dev = on(parent(a)))
+
+function *(a::Tensor, b::Union{Adjoint{T, <:TensorMatrix{T}},
+                               Transpose{T, <:TensorMatrix{T}}}) where T
+  ptr = Ref(Ptr{Cvoid}())
+  p = Tensor(size(b)..., dev = on(a))
+  LinearAlgebra.adjoint!(p, b.parent)
+  a * p
+end
+
+function *(a::Union{Adjoint{T, <:TensorMatrix{T}},
+                    Transpose{T, <:TensorMatrix{T}}}, b::Tensor) where T
+  ptr = Ref(Ptr{Cvoid}())
+  p = Tensor(size(a)..., dev = on(b))
+  LinearAlgebra.adjoint!(p, a.parent)
+  p * b
+end
+
+function Base.maximum(t::Tensor{T}; dims = :) where T
+  ptr = Ref(Ptr{Cvoid}())
+  atg_max(ptr, t.ptr)
+  Tensor{T,0}(ptr[], on(t))
 end
 
 function Base.sqrt(t::Tensor{T,N}) where {T,N}

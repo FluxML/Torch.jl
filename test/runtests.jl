@@ -21,6 +21,9 @@ end
 
   top = tresnet(tip)
   op = resnet.layers(ip)
+
+  gs = gradient(() -> sum(tresnet(tip)), Flux.params(tresnet))
   @test top isa Tensor
   @test size(top) == size(op)
+  @test gs isa Flux.Zygote.Grads
 end
