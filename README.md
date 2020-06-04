@@ -23,6 +23,7 @@ julia> using Pkg; Pkg.add("Torch");
 
 ```julia
 using Metalhead, Metalhead.Flux, Torch
+using Torch: torch
 
 resnet = ResNet()
 ```
