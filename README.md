@@ -51,6 +51,13 @@ We can take gradients using Zygote as well
 
 ```julia
 gs = gradient(x -> sum(tresnet(x)), tip);
+
+# Or
+
+ps = Flux.params(tresnet);
+gs = gradient(ps) do
+  sum(tresnet(tip))
+end
 ```
 
 ## Contributing and Issues
