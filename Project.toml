@@ -15,7 +15,7 @@ ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
 FillArrays = "0.8"
-NNlib = "0.6"
+NNlib = "0.6, 0.7"
 Requires = "1"
 ZygoteRules = "0"
 julia = "1.3"
