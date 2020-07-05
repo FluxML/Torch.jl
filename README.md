@@ -4,7 +4,7 @@ Sensible extensions for exposing torch in Julia.
 This package is aimed at providing the `Tensor` type, which offloads all computations over to [PyTorch](https://pytorch.org).
 
 **Note:**
-* Needs a machine with a CUDA GPU
+* Needs a machine with a CUDA GPU (CUDA 10.1 or above)
   * will need lazy artifacts function without a GPU
 
 ## Quick Start
