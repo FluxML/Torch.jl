@@ -101,7 +101,7 @@ end
 function _softmax(input::Tensor{T,N}, dims = 1, dtype = options[T]) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
 
-  atg_softmax(ptr, input.ptr, N - dims, dtype)
+  atg_softmax(ptr, input.ptr, N - dims - 1, dtype)
   Tensor{T,N}(ptr[], on(input))
 end
 
