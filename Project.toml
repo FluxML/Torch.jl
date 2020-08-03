@@ -1,7 +1,7 @@
 name = "Torch"
 uuid = "6a2ea274-3061-11ea-0d63-ff850051a295"
 authors = ["dhairyagandhi96 "]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
