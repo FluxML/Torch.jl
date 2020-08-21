@@ -262,11 +262,11 @@ return 1;
 }
 
 int at_set_double_value_at_indexes(tensor t, int *indexes, int indexes_len, double v) {
-  at_set_value_at_indexes<double>(t, indexes, indexes_len, v);
+  return at_set_value_at_indexes<double>(t, indexes, indexes_len, v);
 }
 
 int at_set_int64_value_at_indexes(tensor t, int *indexes, int indexes_len, int64_t v) {
-  at_set_value_at_indexes<int64_t>(t, indexes, indexes_len, v);
+  return at_set_value_at_indexes<int64_t>(t, indexes, indexes_len, v);
 }
 
 int at_fill_double(tensor t, double v) {

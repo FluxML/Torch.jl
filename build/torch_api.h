@@ -39,8 +39,8 @@ int at_sync();
 int at_from_blob(tensor *, void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev);
 int at_tensor_of_data(tensor *, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type);
 int at_copy_data(tensor tensor, void *vs, int64_t numel, int element_size_in_bytes);
-int at_float_vec(double *values, int value_len, int type);
-int at_int_vec(int64_t *values, int value_len, int type);
+int at_float_vec(tensor* tensor, double *values, int value_len, int type);
+int at_int_vec(tensor* tensor, int64_t *values, int value_len, int type);
 
 int at_defined(int *i, tensor);
 int at_dim(int *i, tensor);
@@ -56,7 +56,7 @@ int at_fill_double(tensor, double);
 int at_fill_int64(tensor, int64_t);
 
 int at_double_value_at_indexes(double *i, tensor, int *indexes, int indexes_len);
-int at_int64_value_at_indexes(double *i, tensor, int *indexes, int indexes_len);
+int at_int64_value_at_indexes(int64_t *i, tensor, int *indexes, int indexes_len);
 int at_set_double_value_at_indexes(tensor, int *indexes, int indexes_len, double v);
 int at_set_int64_value_at_indexes(tensor, int *indexes, int indexes_len, int64_t v);
 
@@ -65,7 +65,7 @@ int at_copy_(tensor dst, tensor src);
 int at_print(tensor);
 // char *at_to_string(tensor, int line_size);
 int at_save(tensor, char *filename);
-tensor at_load(char *filename);
+int at_load(char *filename, tensor *tensor);
 
 int at_save_multi(tensor *tensors, char **tensor_names, int ntensors, char *filename);
 /* [at_load_multi] takes as input an array of nullptr for [tensors]. */
