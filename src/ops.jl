@@ -231,7 +231,7 @@ function _upsample_nearest2d(t::Tensor{T,N}, output_size) where {T,N}
   Tensor{T,N}(ptr[], on(t))
 end
 
-function _upsample_bilinear2d(t::Tensor{T,N}, output_size, align_corners) where {T,N}
+function _upsample_bilinear2d(t::Tensor{T,N}, output_size, align_corners = true) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
 
   atg_upsample_bilinear2d(ptr, t.ptr,
@@ -241,7 +241,7 @@ function _upsample_bilinear2d(t::Tensor{T,N}, output_size, align_corners) where 
   Tensor{T,N}(ptr[], on(t))
 end
 
-function _upsample_bicubic2d(t::Tensor{T,N}, output_size, align_corners) where {T,N}
+function _upsample_bicubic2d(t::Tensor{T,N}, output_size, align_corners = true) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
 
   atg_upsample_bicubic2d(ptr, t.ptr,
@@ -255,7 +255,7 @@ function upsample(t::Tensor{T,N}, output_size, mode) where {T,N}
     if mode == :NEAREST
         _upsample_nearest2d(t, output_size)
     elseif mode == :LINEAR
-        _upsample_linear2d(t, output_size)
+        _upsample_bilinear2d(t, output_size)
     elseif mode == :CUBIC
         _upsample_bicubic2d(t, output_size)
     else
