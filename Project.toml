@@ -14,7 +14,7 @@ Torch_jll = "c12fb04c-f5e9-5c82-b5d6-b53f8f8d9a32"
 ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
-FillArrays = "0.8, 0.11"
+FillArrays = "0.8, 0.9, 0.10, 0.11"
 NNlib = "0.6, 0.7"
 Requires = "1"
 ZygoteRules = "0"
