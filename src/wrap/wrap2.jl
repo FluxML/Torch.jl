@@ -1,10 +1,10 @@
 using Clang
 
 const LIBTORCH_INCLUDE = joinpath(PATH) |> normpath
-const LIBTORCH_HEADERS = ["/home/dhairyagandhi96/temp/aten/torch_cpp/ocaml-torch/src/wrapper/torch_api.h"] 
+const LIBTORCH_HEADERS = ["path/to/torch_api.h"] 
 
-hs = ["/home/dhairyagandhi96/temp/aten/torch_cpp/ocaml-torch/src/wrapper/torch_api.h",
-      "/home/dhairyagandhi96/temp/aten/torch_cpp/ocaml-torch/src/wrapper/torch_api_generated.h"]
+hs = ["path/to/torch_api.h",
+      "path/to/torch_api_generated.h"]
 
 @show LIBTORCH_INCLUDE
 @show LIBTORCH_HEADERS
