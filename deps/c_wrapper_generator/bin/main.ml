@@ -371,24 +371,27 @@ let write_cpp funcs filename =
               let c_typed_args_list = Func.c_typed_args_list func in
               match func.returns with
               | `dynamic ->
-                pc "tensor *atg_%s(%s) {" exported_name c_typed_args_list;
+                pc "int atg_%s(tensor *out__, %s) {" exported_name c_typed_args_list;
                 pc "  PROTECT(";
                 pc "    auto outputs__ = %s;" (Func.c_call func);
                 (* the returned type is a C++ vector of tensors *)
                 pc "    int sz = outputs__.size();";
                 pc
-                  "    torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * \
+                  "    // torch::Tensor **out__ = (torch::Tensor**)malloc((sz + 1) * \
                    sizeof(torch::Tensor*));";
                 pc "    for (int i = 0; i < sz; ++i)";
                 pc "      out__[i] = new torch::Tensor(outputs__[i]);";
                 pc "    out__[sz] = nullptr;";
-                pc "    return out__;";
-                pc "  )";
+                pc "    // return out__;";
+                pc "  return 0;";
+                pc ")";
+                pc "return 1;";
                 pc "}";
                 pc "";
-                ph "tensor *atg_%s(%s);" exported_name c_typed_args_list
+                ph "// tensor *atg_%s(%s);" exported_name c_typed_args_list;
+                ph "int atg_%s(tensor *, %s);" exported_name c_typed_args_list
               | `fixed ntensors ->
-                pc "void atg_%s(tensor *out__, %s) {" exported_name c_typed_args_list;
+                pc "int atg_%s(tensor *out__, %s) {" exported_name c_typed_args_list;
                 pc "  PROTECT(";
                 pc "    auto outputs__ = %s;" (Func.c_call func);
                 if ntensors = 1
@@ -397,10 +400,12 @@ let write_cpp funcs filename =
                   for i = 0 to ntensors - 1 do
                     pc "    out__[%d] = new torch::Tensor(std::get<%d>(outputs__));" i i
                   done;
-                pc "  )";
+                pc "  return 0;";
+                pc ")";
+                pc "return 1;";
                 pc "}";
                 pc "";
-                ph "void atg_%s(tensor *, %s);" exported_name c_typed_args_list)))
+                ph "int atg_%s(tensor *, %s);" exported_name c_typed_args_list)))
 
 let write_stubs funcs filename =
   Out_channel.with_file filename ~f:(fun out_channel ->
