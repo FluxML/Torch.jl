@@ -1,7 +1,0 @@
-{
-    "cmake.buildDirectory": "${workspaceFolder}/deps/c_wrapper/build",
-    "cmake.buildEnvironment": {
-        "CMAKE_PREFIX_PATH": "$CMAKE_PREFIX_PATH"
-    },
-    "cmake.sourceDirectory": "${workspaceFolder}/deps/c_wrapper"
-}

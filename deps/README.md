@@ -29,7 +29,25 @@ docker run -it --rm -v `pwd`:/workspace -w /workspace ocaml/opam:debian-11-ocaml
 
 ## Building
 
-The C wrapper can be built given that we can provide the paths to working Torch and CUDA/ CUDNN projects. The binaries can also be downloaded from the [official libtorch binaries](https://pytorch.org/get-started/locally/), which is what the wrapper is based on. This currently supports torch v1.4.0.
+The C wrapper can be built given that we can provide the paths to Torch, CUDA, and CUDNN. Torch can be downloaded from the [official libtorch binaries](https://pytorch.org/get-started/locally/).
+
+### VS Code
+
+The C wrapper can be built from VS Code, provided that CMake is configured appropriately, e.g. by ensuring the following settings are in `.vscode/settings.json` (using the dev. container - or ensuring otherwise that `$CMAKE_PREFIX_PATH` is the path to `libtorch`):
+
+```json
+{
+    "cmake.buildDirectory": "${workspaceFolder}/deps/c_wrapper/build",
+    "cmake.buildEnvironment": {
+        "CMAKE_PREFIX_PATH": "$CMAKE_PREFIX_PATH"
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/deps/c_wrapper"
+}
+```
+
+### Manually
+
+The C wrapper can also be built manually, e.g.
 
 ```sh
 cd c_wrapper
