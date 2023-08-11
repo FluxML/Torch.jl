@@ -1,0 +1,4 @@
+(executable
+ (public_name wrapper_generator)
+ (name main)
+ (libraries base stdio yaml))
