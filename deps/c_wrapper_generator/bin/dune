@@ -1,4 +1,5 @@
 (executable
  (public_name wrapper_generator)
  (name main)
- (libraries base stdio yaml))
+ (libraries base stdio yaml)
+ (preprocess (pps ppx_string)))
