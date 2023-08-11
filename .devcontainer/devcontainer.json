@@ -5,7 +5,7 @@
       "BASE_IMAGE_TAG": "debian-11",
       "OCAML_VERSION": "4",
       "OPAM_VERSION": "2",
-      "TORCH_VERSION": "1.4.0"
+      "TORCH_VERSION": "1.10.2"
     }
   },
   "customizations": {
