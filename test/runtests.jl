@@ -27,3 +27,5 @@ end
   @test size(top) == size(op)
   @test gs isa Flux.Zygote.Grads
 end
+
+include("test_nnlib.jl")
