@@ -6,27 +6,28 @@ steps:
       - JuliaCI/julia-test#v1: ~
     agents:
       queue: "juliagpu"
-      cuda: "*"
-    timeout_in_minutes: 60
+      cuda: "true"
+      cap: sm_75
+    command: |
+      TMP_PROJECT=`mktemp -d`
+      
+      cd $$TMP_PROJECT
 
-  - label: "GPU integration with julia v1"
-    plugins:
-      - JuliaCI/julia#v1:
-          version: "1"
-      - JuliaCI/julia-test#v1: ~
-    agents:
-      queue: "juliagpu"
-      cuda: "*"
-    env:
-      JULIA_CUDA_USE_BINARYBUILDER: "true"
-    timeout_in_minutes: 60
+      touch Project.toml
+      cat <<EOT > LocalPreferences.toml
+      [CUDA_Runtime_jll]
+      version = "10.2"
+      EOT
 
-  # - label: "GPU nightly"
-  #   plugins:
-  #     - JuliaCI/julia#v1:
-  #         version: "nightly"
-  #     - JuliaCI/julia-test#v1: ~
-  #   agents:
-  #     queue: "juliagpu"
-  #     cuda: "*"
-  #   timeout_in_minutes: 60
+      export CUDA_RUNTIME_ROOT=`julia --project --eval '
+        using Pkg
+        Pkg.add(name="CUDA_Runtime_jll", version="0.2")
+        using CUDA_Runtime_jll
+        println(CUDA_Runtime_jll.artifact_dir)
+      '`
+
+      ls -1 $$CUDA_RUNTIME_ROOT/lib/libcudart*
+      export LD_LIBRARY_PATH=$$CUDA_RUNTIME_ROOT/lib
+
+      cd $$BUILDKITE_BUILD_CHECKOUT_PATH
+    timeout_in_minutes: 60
