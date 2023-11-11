@@ -55,14 +55,14 @@ Tensor(sz::Int; dev = -1) = Tensor(Float32, Int(sz), dev = dev)
 #   Tensor{T,N}(ptr, on(ptr))
 # end
 
-function at_dim(t::Tensor)
+function Base.ndims(t::Tensor)
   i = Int32[-1]
   at_dim(i, t.ptr)
-  i[1]
+  Int(i[1])
 end
 
 function Base.size(t::Tensor)
-  dims = at_dim(t)
+  dims = ndims(t)
   sz = zeros(Int32, dims)
   at_shape(t.ptr, pointer(sz))
   # s = Int.(tuple(sz...))

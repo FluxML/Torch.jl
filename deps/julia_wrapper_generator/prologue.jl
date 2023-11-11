@@ -1,10 +1,6 @@
 function get_error()
-  err = cglobal((:myerr, :libdoeye_caml), Cstring) |> unsafe_load
+  err = cglobal((:myerr, libdoeye_caml), Cstring) |> unsafe_load
   unsafe_string(err)
-end
-
-function flush_error()
-  ccall((:flush_error, :libdoeye_caml), Cvoid, ())
 end
 
 macro runtime_error_check(ex)

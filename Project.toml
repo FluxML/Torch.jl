@@ -4,6 +4,7 @@ authors = ["Dhairya Gandhi <dhairyagandhi96@gmail.com>"]
 version = "0.1.2"
 
 [deps]
+CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -14,6 +15,7 @@ Torch_jll = "c12fb04c-f5e9-5c82-b5d6-b53f8f8d9a32"
 ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
+CEnum = "0.4, 0.5"
 FillArrays = "0.8, 0.11, 0.13"
 Flux = "0.11"
 NNlib = "0.6, 0.7.0 - 0.7.24"

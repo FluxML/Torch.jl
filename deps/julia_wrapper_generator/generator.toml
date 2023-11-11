@@ -1,0 +1,7 @@
+[general]
+library_name = "libdoeye_caml"
+output_file_path = "../../src/wrapper.jl"
+prologue_file_path = "./prologue.jl"
+module_name = "Wrapper"
+jll_pkg_name = "Torch_jll"
+export_symbol_prefixes = ["at"]
