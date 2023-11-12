@@ -23,10 +23,10 @@ typedef void *module;
 typedef void *ivalue;
 #endif
 
-void at_manual_seed(int64_t);
+int at_manual_seed(int64_t);
 int at_new_tensor(tensor *);
 int at_tensor_of_data(tensor *, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type);
-void at_copy_data(tensor tensor, void *vs, int64_t numel, int element_size_in_bytes);
+int at_copy_data(tensor tensor, void *vs, int64_t numel, int element_size_in_bytes);
 int at_float_vec(tensor *, double *values, int value_len, int type);
 int at_int_vec(tensor *, int64_t *values, int value_len, int type);
 
@@ -34,50 +34,50 @@ int at_defined(int *, tensor);
 int at_is_sparse(int *, tensor);
 int at_device(int *, tensor);
 int at_dim(int *, tensor);
-void at_shape(tensor, int *);
-void at_stride(tensor, int *);
+int at_shape(tensor, int *);
+int at_stride(tensor, int *);
 int at_scalar_type(int *, tensor);
 
-void at_autocast_clear_cache();
+int at_autocast_clear_cache();
 int at_autocast_decrement_nesting(int *);
 int at_autocast_increment_nesting(int *);
 int at_autocast_is_enabled(int *);
 int at_autocast_set_enabled(int *, int b);
 
-void at_backward(tensor, int, int);
+int at_backward(tensor, int, int);
 int at_requires_grad(int *, tensor);
 int at_grad_set_enabled(int *, int);
 
 int at_get(tensor *, tensor, int index);
-void at_fill_double(tensor, double);
-void at_fill_int64(tensor, int64_t);
+int at_fill_double(tensor, double);
+int at_fill_int64(tensor, int64_t);
 
 int at_double_value_at_indexes(double *, tensor, int *indexes, int indexes_len);
 int at_int64_value_at_indexes(int64_t *, tensor, int *indexes, int indexes_len);
-void at_set_double_value_at_indexes(tensor, int *indexes, int indexes_len, double v);
-void at_set_int64_value_at_indexes(tensor, int *indexes, int indexes_len, int64_t v);
+int at_set_double_value_at_indexes(tensor, int *indexes, int indexes_len, double v);
+int at_set_int64_value_at_indexes(tensor, int *indexes, int indexes_len, int64_t v);
 
-void at_copy_(tensor dst, tensor src);
+int at_copy_(tensor dst, tensor src);
 
-void at_print(tensor);
+int at_print(tensor);
 char *at_to_string(tensor, int line_size);
-void at_save(tensor, char *filename);
+int at_save(tensor, char *filename);
 int at_load(tensor *, char *filename);
 
 int at_get_num_threads(int *);
-void at_set_num_threads(int n_threads);
+int at_set_num_threads(int n_threads);
 
-void at_save_multi(tensor *tensors, char **tensor_names, int ntensors, char *filename);
+int at_save_multi(tensor *tensors, char **tensor_names, int ntensors, char *filename);
 /* [at_load_multi] takes as input an array of nullptr for [tensors]. */
-void at_load_multi(tensor *tensors, char **tensor_names, int ntensors, char *filename);
+int at_load_multi(tensor *tensors, char **tensor_names, int ntensors, char *filename);
 /* [at_load_multi_] takes as input an array of allocation [tensors]. */
-void at_load_multi_(tensor *tensors, char **tensor_names, int ntensors, char *filename);
+int at_load_multi_(tensor *tensors, char **tensor_names, int ntensors, char *filename);
 
-void at_load_callback(char *filename, void (*f)(char *, tensor));
+int at_load_callback(char *filename, void (*f)(char *, tensor));
 
-void at_free(tensor);
+int at_free(tensor);
 
-void at_run_backward(tensor *tensors,
+int at_run_backward(tensor *tensors,
                       int ntensors,
                       tensor *inputs,
                       int ninputs,
@@ -101,28 +101,28 @@ int ato_sgd(optimizer *, double learning_rate,
                   double dampening,
                   double weight_decay,
                   int nesterov);
-void ato_add_parameters(optimizer, tensor *, int ntensors);
-void ato_set_learning_rate(optimizer, double learning_rate);
-void ato_set_momentum(optimizer, double momentum);
-void ato_zero_grad(optimizer);
-void ato_step(optimizer);
-void ato_free(optimizer);
+int ato_add_parameters(optimizer, tensor *, int ntensors);
+int ato_set_learning_rate(optimizer, double learning_rate);
+int ato_set_momentum(optimizer, double momentum);
+int ato_zero_grad(optimizer);
+int ato_step(optimizer);
+int ato_free(optimizer);
 
 int ats_int(scalar *, int64_t);
 int ats_float(scalar *, double);
-void ats_free(scalar);
+int ats_free(scalar);
 
 int atc_cuda_device_count(int *);
 int atc_cuda_is_available(int *);
 int atc_cudnn_is_available(int *);
-void atc_set_benchmark_cudnn(int b);
+int atc_set_benchmark_cudnn(int b);
 
 int atm_load(module *, char *);
 int atm_forward(tensor *, module, tensor *tensors, int ntensors);
 int atm_forward_(ivalue *, module,
                     ivalue *ivalues,
                     int nivalues);
-void atm_free(module);
+int atm_free(module);
 
 int ati_none(ivalue *);
 int ati_tensor(ivalue *, tensor);
@@ -147,17 +147,17 @@ char *ati_to_string(ivalue);
 int ati_to_bool(int *, ivalue);
 int ati_length(int *, ivalue);
 int ati_tuple_length(int *, ivalue);
-void ati_to_tuple(ivalue, ivalue *, int);
-void ati_to_generic_list(ivalue, ivalue *, int);
-void ati_to_generic_dict(ivalue, ivalue *, int);
-void ati_to_int_list(ivalue, int64_t *, int);
-void ati_to_double_list(ivalue, double *, int);
-void ati_to_bool_list(ivalue, char *, int);
-void ati_to_tensor_list(ivalue, tensor *, int);
+int ati_to_tuple(ivalue, ivalue *, int);
+int ati_to_generic_list(ivalue, ivalue *, int);
+int ati_to_generic_dict(ivalue, ivalue *, int);
+int ati_to_int_list(ivalue, int64_t *, int);
+int ati_to_double_list(ivalue, double *, int);
+int ati_to_bool_list(ivalue, char *, int);
+int ati_to_tensor_list(ivalue, tensor *, int);
 
 int ati_tag(int *, ivalue);
 
-void ati_free(ivalue);
+int ati_free(ivalue);
 
 #include "torch_api_generated.h"
 
