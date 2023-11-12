@@ -9,11 +9,14 @@ typedef torch::Scalar *scalar;
 typedef torch::optim::Optimizer *optimizer;
 typedef torch::jit::script::Module *module;
 typedef torch::jit::IValue *ivalue;
+char* myerr = "";
 #define PROTECT(x) \
   try { \
     x \
   } catch (const exception& e) { \
-    caml_failwith(strdup(e.what())); \
+    myerr = strdup(e.what()); \
+    /* jl_error(strdup(e.what())); */ \
+    /* throw(e.what()); */ \
   }
 #else
 typedef void *tensor;
@@ -22,6 +25,9 @@ typedef void *scalar;
 typedef void *module;
 typedef void *ivalue;
 #endif
+
+int get_last_error(char *);
+int flush_error();
 
 int at_manual_seed(int64_t);
 int at_new_tensor(tensor *);

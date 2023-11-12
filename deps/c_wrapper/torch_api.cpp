@@ -3,10 +3,26 @@
 #include<ATen/autocast_mode.h>
 #include<torch/script.h>
 #include<vector>
-#include<caml/fail.h>
 #include "torch_api.h"
 
+#define caml_invalid_argument printf
+
 using namespace std;
+
+int get_last_error(char *err) {
+   int len = strlen(myerr);
+   for (int i = 0; i < len; ++i) err[i] = myerr[i];
+   err[len] = '\0'; 
+   return 0;
+}
+
+int flush_error() {
+  PROTECT(
+    myerr = "";
+    return 0;
+  )
+  return 1;
+}
 
 int at_manual_seed(int64_t seed) {
   torch::manual_seed(seed);
@@ -42,8 +58,10 @@ int at_new_tensor(tensor *out__) {
 int at_tensor_of_data(tensor *out__, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type) {
   PROTECT(
     torch::Tensor tensor = torch::zeros(torch::IntArrayRef(dims, ndims), torch::ScalarType(type));
-    if (element_size_in_bytes != tensor.element_size())
-      caml_failwith("incoherent element sizes in bytes");
+    if (element_size_in_bytes != tensor.element_size()) {
+      myerr = strdup("incoherent element sizes in bytes");
+      return 1;
+    }
     void *tensor_data = tensor.data_ptr();
     memcpy(tensor_data, vs, tensor.numel() * element_size_in_bytes);
     out__[0] = new torch::Tensor(tensor);
@@ -54,10 +72,14 @@ int at_tensor_of_data(tensor *out__, void *vs, int64_t *dims, int ndims, int ele
 
 int at_copy_data(tensor tensor, void *vs, int64_t numel, int elt_size_in_bytes) {
   PROTECT(
-    if (elt_size_in_bytes != tensor->element_size())
-      caml_failwith("incoherent element sizes in bytes");
-    if (numel != tensor->numel())
-      caml_failwith("incoherent number of elements");
+    if (elt_size_in_bytes != tensor->element_size()) {
+      myerr = strdup("incoherent element sizes in bytes");
+      return 1;
+    }
+    if (numel != tensor->numel()) {
+      myerr = strdup("incoherent number of elements");
+      return 1;
+    }
     if (tensor->device().type() != at::kCPU) {
       torch::Tensor tmp_tensor = tensor->to(at::kCPU).contiguous();
       void *tensor_data = tmp_tensor.data_ptr();
@@ -655,8 +677,10 @@ int atm_forward(tensor *out__, module m, tensor *tensors, int ntensors) {
     for (int i = 0; i < ntensors; ++i)
       inputs.push_back(*(tensors[i]));
     torch::jit::IValue output = m->forward(inputs);
-    if (!output.isTensor())
-      caml_failwith("forward did not return a tensor");
+    if (!output.isTensor()) {
+      myerr = strdup("forward did not return a tensor");
+      return 1;
+    }
     out__[0] = new torch::Tensor(output.toTensor());
     return 0;
   )
@@ -831,7 +855,10 @@ int ati_tag(int *out__, ivalue i) {
     else if (i->isTensorList()) return 10;
     else if (i->isList()) return 12;
     else if (i->isGenericDict()) return 13;
-    caml_failwith(("unsupported tag" + i->tagKind()).c_str());
+    {
+      myerr = strdup(("unsupported tag" + i->tagKind()).c_str());
+      return 1;
+    }
     return -1;
   )
   return -1;
@@ -904,7 +931,8 @@ int ati_to_tuple(ivalue i,
   PROTECT(
     auto vec = i->toTuple()->elements();
     if (vec.size() != noutputs) {
-      caml_failwith("unexpected tuple size");
+      myerr = strdup("unexpected tuple size");
+      return 1;
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = new torch::jit::IValue(vec[i]);
