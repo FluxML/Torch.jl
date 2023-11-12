@@ -241,7 +241,7 @@ int at_print(tensor t) {
   )
 }
 
-char *at_to_string(tensor t, int line_size) {
+int at_to_string(char **out__, tensor t, int line_size) {
   PROTECT(
     std::ostringstream oss;
     torch::print(oss, *t, line_size);
@@ -539,7 +539,7 @@ int ats_to_float(double *out__, scalar s) {
   return 0.;
 }
 
-char *ats_to_string(scalar s) {
+int ats_to_string(char **out__, scalar s) {
   PROTECT(
     using namespace at;
     std::ostringstream oss;
@@ -780,7 +780,7 @@ int ati_to_bool(int *out__, ivalue i) {
   return -1;
 }
 
-char *ati_to_string(ivalue i) {
+int ati_to_string(char **out__, ivalue i) {
   PROTECT(
     auto str = i->toStringRef();
     return strdup(str.c_str());

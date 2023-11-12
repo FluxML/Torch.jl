@@ -60,7 +60,7 @@ int at_set_int64_value_at_indexes(tensor, int *indexes, int indexes_len, int64_t
 int at_copy_(tensor dst, tensor src);
 
 int at_print(tensor);
-char *at_to_string(tensor, int line_size);
+int at_to_string(char **, tensor, int line_size);
 int at_save(tensor, char *filename);
 int at_load(tensor *, char *filename);
 
@@ -143,7 +143,7 @@ int ati_tensor_list(ivalue *, tensor *, int);
 int ati_to_tensor(tensor *, ivalue);
 int ati_to_int(int64_t *, ivalue);
 int ati_to_double(double *, ivalue);
-char *ati_to_string(ivalue);
+int ati_to_string(char **, ivalue);
 int ati_to_bool(int *, ivalue);
 int ati_length(int *, ivalue);
 int ati_tuple_length(int *, ivalue);
