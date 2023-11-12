@@ -153,7 +153,8 @@ int at_stride(tensor t, int64_t *dims) {
 
 int at_scalar_type(int *out__, tensor t) {
   PROTECT(
-    return static_cast<int>(t->scalar_type());
+    out__[0] = static_cast<int>(t->scalar_type());
+    return 0;
   )
 }
 
@@ -163,21 +164,24 @@ int at_autocast_clear_cache() {
 
 int at_autocast_decrement_nesting(int *out__) {
   PROTECT(
-    return at::autocast::decrement_nesting();
+    out__[0] = at::autocast::decrement_nesting();
+    return 0;
   )
   return -1;
 }
 
 int at_autocast_increment_nesting(int *out__) {
   PROTECT(
-    return at::autocast::increment_nesting();
+    out__[0] = at::autocast::increment_nesting();
+    return 0;
   )
   return -1;
 }
 
 int at_autocast_is_enabled(int *out__) {
   PROTECT(
-    return at::autocast::is_enabled();
+    out__[0] = at::autocast::is_enabled();
+    return 0;
   )
   return -1;
 }
@@ -866,7 +870,8 @@ int ati_tag(int *out__, ivalue i) {
 
 int ati_to_int(int64_t *out__, ivalue i) {
   PROTECT(
-    return i->toInt();
+    out__[0] = i->toInt();
+    return 0;
   )
   return -1;
 }
@@ -880,7 +885,8 @@ int ati_to_double(double *out__, ivalue i) {
 
 int ati_to_bool(int *out__, ivalue i) {
   PROTECT(
-    return i->toBool();
+    out__[0] = i->toBool();
+    return 0;
   )
   return -1;
 }
@@ -920,7 +926,8 @@ int ati_length(int *out__, ivalue i) {
 
 int ati_tuple_length(int *out__, ivalue i) {
   PROTECT(
-    return i->toTuple()->elements().size();
+    out__[0] = i->toTuple()->elements().size();
+    return 0;
   )
   return -1;
 }
