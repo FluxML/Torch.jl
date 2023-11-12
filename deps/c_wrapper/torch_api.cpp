@@ -187,8 +187,11 @@ int at_grad_set_enabled(int *out__, int b) {
 }
 
 int at_get(tensor *out__, tensor t, int index) {
-  PROTECT(return new torch::Tensor((*t)[index]);)
-  return nullptr;
+  PROTECT(
+    out__[0] = new torch::Tensor((*t)[index]);
+    return 0;
+  )
+  return 1;
 }
 
 template<typename T>
@@ -528,13 +531,19 @@ int ato_free(optimizer t) {
 }
 
 int ats_int(scalar *out__, int64_t v) {
-  PROTECT(return new torch::Scalar(v);)
-  return nullptr;
+  PROTECT(
+    out__[0] = new torch::Scalar(v);
+    return 0;
+  )
+  return 1;
 }
 
 int ats_float(scalar *out__, double v) {
-  PROTECT(return new torch::Scalar(v);)
-  return nullptr;
+  PROTECT(
+    out__[0] = new torch::Scalar(v);
+    return 0;
+  )
+  return 1;
 }
 
 int ats_to_int(int64_t *out__, scalar s) {
