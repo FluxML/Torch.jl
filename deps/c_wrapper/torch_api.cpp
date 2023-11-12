@@ -92,17 +92,26 @@ int at_int_vec(tensor *out__, int64_t *vs, int len, int type) {
 }
 
 int at_defined(int *out__, tensor t) {
-  PROTECT(return t->defined();)
+  PROTECT(
+    out__[0] = t->defined();
+    return 0;
+  )
   return -1;
 }
 
 int at_is_sparse(int *out__, tensor t) {
-  PROTECT(return t->is_sparse();)
+  PROTECT(
+    out__[0] = t->is_sparse();
+    return 0;
+  )
   return -1;
 }
 
 int at_dim(int *out__, tensor t) {
-  PROTECT(return t->dim();)
+  PROTECT(
+    out__[0] = t->dim();
+    return 0;
+  )
   return -1;
 }
 
@@ -173,7 +182,10 @@ int at_backward(tensor t, int keep_graph, int create_graph) {
 }
 
 int at_requires_grad(int *out__, tensor t) {
-  PROTECT(return t->requires_grad();)
+  PROTECT(
+    out__[0] = t->requires_grad();
+    return 0;
+  )
   return -1;
 }
 
@@ -328,12 +340,18 @@ int at_load(tensor *out__, char *filename) {
 }
 
 int at_get_num_interop_threads(int *out__) {
-  PROTECT(return at::get_num_interop_threads();)
+  PROTECT(
+    out__[0] = at::get_num_interop_threads();
+    return 0;
+  )
   return -1;
 }
 
 int at_get_num_threads(int *out__) {
-  PROTECT(return at::get_num_threads();)
+  PROTECT(
+    out__[0] = at::get_num_threads();
+    return 0;
+  )
   return -1;
 }
 
@@ -547,12 +565,18 @@ int ats_float(scalar *out__, double v) {
 }
 
 int ats_to_int(int64_t *out__, scalar s) {
-  PROTECT(return s->toLong();)
+  PROTECT(
+    out__[0] = s->toLong();
+    return 0;
+  )
   return -1;
 }
 
 int ats_to_float(double *out__, scalar s) {
-  PROTECT(return s->toDouble();)
+  PROTECT(
+    out__[0] = s->toDouble();
+    return 0;
+  )
   return 0.;
 }
 
@@ -571,17 +595,26 @@ int ats_free(scalar s) {
 }
 
 int atc_cuda_device_count(int *out__) {
-  PROTECT(return torch::cuda::device_count();)
+  PROTECT(
+    out__[0] = torch::cuda::device_count();
+    return 0;
+  )
   return -1;
 }
 
 int atc_cuda_is_available(int *out__) {
-  PROTECT(return torch::cuda::is_available();)
+  PROTECT(
+    out__[0] = torch::cuda::is_available();
+    return 0;
+  )
   return -1;
 }
 
 int atc_cudnn_is_available(int *out__) {
-  PROTECT(return torch::cuda::cudnn_is_available();)
+  PROTECT(
+    out__[0] = torch::cuda::cudnn_is_available();
+    return 0;
+  )
   return -1;
 }
 
