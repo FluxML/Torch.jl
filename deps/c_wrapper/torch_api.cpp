@@ -264,9 +264,10 @@ int at_to_string(char **out__, tensor t, int line_size) {
   PROTECT(
     std::ostringstream oss;
     torch::print(oss, *t, line_size);
-    return strdup(oss.str().c_str());
+    out__[0] = strdup(oss.str().c_str());
+    return 0;
   )
-  return nullptr;
+  return 1;
 }
 
 int at_copy_(tensor dst, tensor src) {
@@ -585,9 +586,10 @@ int ats_to_string(char **out__, scalar s) {
     using namespace at;
     std::ostringstream oss;
     oss << (*s);
-    return strdup(oss.str().c_str());
+    out__[0] = strdup(oss.str().c_str());
+    return 0;
   )
-  return nullptr;
+  return 1;
 }
 
 int ats_free(scalar s) {
@@ -851,9 +853,10 @@ int ati_to_bool(int *out__, ivalue i) {
 int ati_to_string(char **out__, ivalue i) {
   PROTECT(
     auto str = i->toStringRef();
-    return strdup(str.c_str());
+    out__[0] = strdup(str.c_str());
+    return 0;
   )
-  return nullptr;
+  return 1;
 }
 
 int ati_to_tensor(tensor *out__, ivalue i) {
