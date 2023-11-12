@@ -156,6 +156,7 @@ int at_scalar_type(int *out__, tensor t) {
     out__[0] = static_cast<int>(t->scalar_type());
     return 0;
   )
+  return 1;
 }
 
 int at_autocast_clear_cache() {
@@ -612,7 +613,7 @@ int ats_to_float(double *out__, scalar s) {
     out__[0] = s->toDouble();
     return 0;
   )
-  return 0.;
+  return 1;
 }
 
 int ats_to_string(char **out__, scalar s) {
@@ -878,9 +879,10 @@ int ati_to_int(int64_t *out__, ivalue i) {
 
 int ati_to_double(double *out__, ivalue i) {
   PROTECT(
-    return i->toDouble();
+    out__[0] = i->toDouble();
+    return 0;
   )
-  return 0.;
+  return 1;
 }
 
 int ati_to_bool(int *out__, ivalue i) {
