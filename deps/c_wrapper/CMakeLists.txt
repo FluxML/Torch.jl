@@ -5,6 +5,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 
 find_package(Torch REQUIRED)
 
+enable_language(CUDA)
+
 include_directories(SYSTEM path)
 
 add_library(doeye_caml "SHARED" torch_api.cpp)
