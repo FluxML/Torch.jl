@@ -2,6 +2,10 @@
 #include<torch/torch.h>
 #include<ATen/autocast_mode.h>
 #include<torch/script.h>
+#ifdef USE_CUDA
+#include<c10/cuda/CUDACachingAllocator.h>
+#include<c10/cuda/CUDAStream.h>
+#endif
 #include<vector>
 #include "torch_api.h"
 
@@ -51,11 +55,57 @@ at::Device device_of_int(int d) {
     return at::Device(at::kCUDA, /*index=*/d);
 }
 
+int at_from_blob(tensor *out__, void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev) {
+  PROTECT(
+    auto options = torch::TensorOptions().device(torch::kCUDA, dev).requires_grad(false);
+    torch::Tensor tens = torch::from_blob(data, torch::IntArrayRef(dims, ndims), torch::IntArrayRef(strides, nstrides), options);
+    out__[0] = new torch::Tensor(tens);
+    return 0;
+  )
+  return 1;
+}
+
 int at_new_tensor(tensor *out__) {
   PROTECT(
     out__[0] = new torch::Tensor();
     return 0;
   )
+  return 1;
+}
+
+int at_empty_cache() {
+  PROTECT(
+#if defined(USE_CUDA)
+    c10::cuda::CUDACachingAllocator::emptyCache();
+    return 0;
+#else
+    myerr = strdup("CUDA is disabled.");
+    return 1;
+#endif
+  )
+  return 1;
+}
+
+int at_no_grad(int flag) {
+  PROTECT(
+    torch::GradMode::set_enabled((bool)flag);
+    return 0;
+  )
+  return 1;
+}
+
+int at_sync() {
+  PROTECT(
+#ifdef USE_CUDA
+    at::cuda::CUDAStream stream = at::cuda::getCurrentCUDAStream();
+    C10_CUDA_CHECK(cudaStreamSynchronize(stream));
+    return 0;
+#else
+    myerr = strdup("CUDA is disabled.");
+    return 1;
+#endif
+  )
+  // torch::cuda::synchronize();
   return 1;
 }
 

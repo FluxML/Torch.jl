@@ -31,6 +31,10 @@ int flush_error();
 
 int at_manual_seed(int64_t);
 int at_new_tensor(tensor *);
+int at_empty_cache();
+int at_no_grad(int flag);
+int at_sync();
+int at_from_blob(tensor *, void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev);
 int at_tensor_of_data(tensor *, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type);
 int at_copy_data(tensor tensor, void *vs, int64_t numel, int element_size_in_bytes);
 int at_float_vec(tensor *, double *values, int value_len, int type);
