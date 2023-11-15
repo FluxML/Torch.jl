@@ -27,7 +27,11 @@ int flush_error() {
 }
 
 int at_manual_seed(int64_t seed) {
-  torch::manual_seed(seed);
+  PROTECT(
+    torch::manual_seed(seed);
+    return 0;
+  )
+  return 1;
 }
 
 vector<torch::Tensor> of_carray_tensor(torch::Tensor **vs, int len) {
@@ -1068,7 +1072,11 @@ int ati_to_tensor_list(ivalue i,
 }
 
 int ati_free(ivalue i) {
-  delete(i);
+  PROTECT(
+    delete(i);
+    return 0;
+  )
+  return 1;
 }
 
 #include "torch_api_generated.cpp.h"
