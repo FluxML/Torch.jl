@@ -414,7 +414,7 @@ int at_load_multi(tensor *tensors, char **tensor_names, int ntensors, char *file
     // [read], no memory has to be freed.
     for (int i = 0; i < ntensors; ++i)
       tensors[i] = new torch::Tensor(ts[i]);
-      return 0;
+    return 0;
   )
   return 1;
 }
@@ -477,15 +477,27 @@ int at_get_num_threads(int *out__) {
 }
 
 int at_set_num_interop_threads(int n_threads) {
-  PROTECT(at::set_num_interop_threads(n_threads);)
+  PROTECT(
+    at::set_num_interop_threads(n_threads);
+    return 0;
+  )
+  return 1;
 }
 
 int at_set_num_threads(int n_threads) {
-  PROTECT(at::set_num_threads(n_threads);)
+  PROTECT(
+    at::set_num_threads(n_threads);
+    return 0;
+  )
+  return 1;
 }
 
 int at_free(tensor t) {
-  delete(t);
+  PROTECT(
+    delete(t);
+    return 0;
+  )
+  return 1;
 }
 
 int at_run_backward(tensor *tensors,
@@ -551,10 +563,10 @@ int ato_rmsprop(optimizer *out__, double learning_rate,
         .weight_decay(weight_decay)
         .momentum(momentum)
         .centered(centered != 0);
-      out__[0] = new torch::optim::RMSprop(vector<torch::Tensor>(), options);
-      return 0;
-    )
-    return 1;
+    out__[0] = new torch::optim::RMSprop(vector<torch::Tensor>(), options);
+    return 0;
+  )
+  return 1;
 }
 
 int ato_sgd(optimizer *out__, double learning_rate,
@@ -579,7 +591,7 @@ int ato_add_parameters(optimizer t, tensor *tensors, int ntensors) {
   PROTECT(
     for (int i = 0; i < ntensors; ++i)
       t->param_groups()[0].params().push_back(*(tensors[i]));
-      return 0;
+    return 0;
   )
   return 1;
 }
@@ -619,7 +631,7 @@ int ato_set_learning_rate(optimizer t, double learning_rate) {
     }
     else
       caml_invalid_argument("unexpected optimizer");
-      return 0;
+    return 0;
   )
   return 1;
 }
@@ -658,19 +670,27 @@ int ato_set_momentum(optimizer t, double momentum) {
       }
     }
     else
-     caml_invalid_argument("unexpected optimizer");
-     return 0;
+      caml_invalid_argument("unexpected optimizer");
+    return 0;
   )
   return 1;
 }
 
 
 int ato_zero_grad(optimizer t) {
-  PROTECT(t->zero_grad();)
+  PROTECT(
+    t->zero_grad();
+    return 0;
+  )
+  return 1;
 }
 
 int ato_step(optimizer t) {
-  PROTECT(t->step();)
+  PROTECT(
+    t->step();
+    return 0;
+  )
+  return 1;
 }
 
 int ato_free(optimizer t) {
