@@ -1150,7 +1150,7 @@ int ati_to_generic_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = new torch::jit::IValue(vec[i]);
-      return 0;
+    return 0;
   )
   return 1;
 }
@@ -1183,7 +1183,7 @@ int ati_to_int_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = vec[i];
-      return 0;
+    return 0;
   )
   return 1;
 }
@@ -1198,7 +1198,7 @@ int ati_to_double_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = vec[i];
-      return 0;
+    return 0;
   )
   return 1;
 }
@@ -1213,7 +1213,7 @@ int ati_to_bool_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = vec[i];
-      return 0;
+    return 0;
   )
   return 1;
 }
@@ -1228,7 +1228,7 @@ int ati_to_tensor_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = new torch::Tensor(vec[i]);
-      return 0;
+    return 0;
   )
   return 1;
 }
