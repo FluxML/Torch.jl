@@ -162,7 +162,7 @@ int at_defined(int *out__, tensor t) {
     out__[0] = t->defined();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_is_sparse(int *out__, tensor t) {
@@ -170,7 +170,7 @@ int at_is_sparse(int *out__, tensor t) {
     out__[0] = t->is_sparse();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_dim(int *out__, tensor t) {
@@ -178,7 +178,7 @@ int at_dim(int *out__, tensor t) {
     out__[0] = t->dim();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_shape(tensor t, int *dims) {
