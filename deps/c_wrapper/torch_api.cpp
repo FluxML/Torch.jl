@@ -465,7 +465,7 @@ int at_get_num_interop_threads(int *out__) {
     out__[0] = at::get_num_interop_threads();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_get_num_threads(int *out__) {
@@ -473,7 +473,7 @@ int at_get_num_threads(int *out__) {
     out__[0] = at::get_num_threads();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_set_num_interop_threads(int n_threads) {
@@ -756,7 +756,7 @@ int atc_cuda_device_count(int *out__) {
     out__[0] = torch::cuda::device_count();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int atc_cuda_is_available(int *out__) {
@@ -764,7 +764,7 @@ int atc_cuda_is_available(int *out__) {
     out__[0] = torch::cuda::is_available();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int atc_cudnn_is_available(int *out__) {
@@ -772,11 +772,15 @@ int atc_cudnn_is_available(int *out__) {
     out__[0] = torch::cuda::cudnn_is_available();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int atc_set_benchmark_cudnn(int b) {
-  at::globalContext().setBenchmarkCuDNN(b);
+  PROTECT(
+    at::globalContext().setBenchmarkCuDNN(b);
+    return 0;
+  )
+  return 1;
 }
 
 int atm_load(module *out__, char *filename) {
@@ -827,7 +831,11 @@ int atm_forward_(ivalue *out__, module m,
 }
 
 int atm_free(module m) {
-  delete(m);
+  PROTECT(
+    delete(m);
+    return 0;
+  )
+  return 1;
 }
 
 int atm_to(module m, int device, int dtype, bool non_blocking) {
@@ -969,26 +977,62 @@ int ati_tensor_list(ivalue *out__, tensor *is, int nvalues) {
 
 int ati_tag(int *out__, ivalue i) {
   PROTECT(
-    if (i->isNone()) return 0;
-    else if (i->isTensor()) return 1;
-    else if (i->isDouble()) return 2;
-    else if (i->isInt()) return 3;
-    else if (i->isBool()) return 4;
-    else if (i->isTuple()) return 5;
-    else if (i->isIntList()) return 6;
-    else if (i->isDoubleList()) return 7;
-    else if (i->isBoolList()) return 8;
-    else if (i->isString()) return 9;
-    else if (i->isTensorList()) return 10;
-    else if (i->isList()) return 12;
-    else if (i->isGenericDict()) return 13;
-    {
-      myerr = strdup(("unsupported tag" + i->tagKind()).c_str());
-      return 1;
+    if (i->isNone()) {
+      out__[0] = 0;
+      return 0;
     }
-    return -1;
+    else if (i->isTensor()) {
+      out__[0] = 1;
+      return 0;
+    }
+    else if (i->isDouble()) {
+      out__[0] = 2;
+      return 0;
+    }
+    else if (i->isInt()) {
+      out__[0] = 3;
+      return 0;
+    }
+    else if (i->isBool()) {
+      out__[0] = 4;
+      return 0;
+    }
+    else if (i->isTuple()) {
+      out__[0] = 5;
+      return 0;
+    }
+    else if (i->isIntList()) {
+      out__[0] = 6;
+      return 0;
+    }
+    else if (i->isDoubleList()) {
+      out__[0] = 7;
+      return 0;
+    }
+    else if (i->isBoolList()) {
+      out__[0] = 8;
+      return 0;
+    }
+    else if (i->isString()) {
+      out__[0] = 9;
+      return 0;
+    }
+    else if (i->isTensorList()) {
+      out__[0] = 10;
+      return 0;
+    }
+    else if (i->isList()) {
+      out__[0] = 12;
+      return 0;
+    }
+    else if (i->isGenericDict()) {
+      out__[0] = 13;
+      return 0;
+    }
+    myerr = strdup(("unsupported tag" + i->tagKind()).c_str());
+    return 1;
   )
-  return -1;
+  return 1;
 }
 
 int ati_to_int(int64_t *out__, ivalue i) {
@@ -996,7 +1040,7 @@ int ati_to_int(int64_t *out__, ivalue i) {
     out__[0] = i->toInt();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int ati_to_double(double *out__, ivalue i) {
@@ -1012,7 +1056,7 @@ int ati_to_bool(int *out__, ivalue i) {
     out__[0] = i->toBool();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int ati_to_string(char **out__, ivalue i) {
@@ -1034,18 +1078,42 @@ int ati_to_tensor(tensor *out__, ivalue i) {
 
 int ati_length(int *out__, ivalue i) {
   PROTECT(
-    if (i->isTuple()) return i->toTuple()->elements().size();
-    else if (i->isIntList()) return i->toIntList().size();
-    else if (i->isDoubleList()) return i->toDoubleList().size();
-    else if (i->isBoolList()) return i->toBoolList().size();
-    else if (i->isString()) return i->toStringRef().size();
-    else if (i->isTensorList()) return i->toTensorList().size();
-    else if (i->isList()) return i->toList().size();
-    else if (i->isGenericDict()) return i->toGenericDict().size();
+    if (i->isTuple()) {
+      out__[0] = i->toTuple()->elements().size();
+      return 0;
+    }
+    else if (i->isIntList()) {
+      out__[0] = i->toIntList().size();
+      return 0;
+    }
+    else if (i->isDoubleList()) {
+      out__[0] = i->toDoubleList().size();
+      return 0;
+    }
+    else if (i->isBoolList()) {
+      out__[0] = i->toBoolList().size();
+      return 0;
+    }
+    else if (i->isString()) {
+      out__[0] = i->toStringRef().size();
+      return 0;
+    }
+    else if (i->isTensorList()) {
+      out__[0] = i->toTensorList().size();
+      return 0;
+    }
+    else if (i->isList()) {
+      out__[0] = i->toList().size();
+      return 0;
+    }
+    else if (i->isGenericDict()) {
+      out__[0] = i->toGenericDict().size();
+      return 0;
+    }
     caml_invalid_argument("unsupported tag for this length");
-    return -1;
+    return 1;
   )
-  return -1;
+  return 1;
 }
 
 int ati_tuple_length(int *out__, ivalue i) {
