@@ -7,6 +7,7 @@
 #include "torch_api.h"
 
 #define caml_invalid_argument printf
+
 using namespace std;
 
 int get_last_error(char *err) {
@@ -147,17 +148,17 @@ int at_int_vec(tensor *out__, int64_t *vs, int len, int type) {
   return 1;
 }
 
-int at_defined(int *i, tensor t) {
+int at_defined(int *out__, tensor t) {
   PROTECT(
-    i[0] = t->defined();
+    out__[0] = t->defined();
     return 0;
   )
   return 1;
 }
 
-int at_dim(int *i, tensor t) {
+int at_dim(int *out__, tensor t) {
   PROTECT(
-    i[0] = t->dim();
+    out__[0] = t->dim();
     return 0;
   )
   return 1;
@@ -172,9 +173,9 @@ int at_shape(tensor t, int *dims) {
   return 1;
 }
 
-int at_scalar_type(int *i, tensor t) {
+int at_scalar_type(int *out__, tensor t) {
   PROTECT(
-    i[0] = static_cast<int>(t->scalar_type());
+    out__[0] = static_cast<int>(t->scalar_type());
     return 0;
   )
   return 1;
@@ -188,9 +189,9 @@ int at_backward(tensor t, int keep_graph, int create_graph) {
   return 1;
 }
 
-int at_requires_grad(int *i, tensor t) {
+int at_requires_grad(int *out__, tensor t) {
   PROTECT(
-    i[0] = t->requires_grad();
+    out__[0] = t->requires_grad();
     return 0;
   )
   return 1;
@@ -225,17 +226,17 @@ T at_value_at_indexes(tensor t, int *indexes, int indexes_len) {
   return T();
 }
 
-int at_double_value_at_indexes(double *i, tensor t, int *indexes, int indexes_len) {
-   PROTECT(
-     i[0] = at_value_at_indexes<double>(t, indexes, indexes_len);
-     return 0;
+int at_double_value_at_indexes(double *out__, tensor t, int *indexes, int indexes_len) {
+  PROTECT(
+    out__[0] = at_value_at_indexes<double>(t, indexes, indexes_len);
+    return 0;
   )
   return 1;
 }
 
-int at_int64_value_at_indexes(int64_t *i, tensor t, int *indexes, int indexes_len) {
+int at_int64_value_at_indexes(int64_t *out__, tensor t, int *indexes, int indexes_len) {
   PROTECT(
-    i[0] = at_value_at_indexes<int64_t>(t, indexes, indexes_len);
+    out__[0] = at_value_at_indexes<int64_t>(t, indexes, indexes_len);
     return 0;
   )
   return 1;
@@ -273,7 +274,7 @@ int at_fill_double(tensor t, double v) {
 int at_fill_int64(tensor t, int64_t v) {
   PROTECT(
     t->fill_(v);
-  return 0;
+    return 0;
   )
   return 1;
 }
@@ -334,7 +335,7 @@ int at_load_multi(tensor *tensors, char **tensor_names, int ntensors, char *file
     // [read], no memory has to be freed.
     for (int i = 0; i < ntensors; ++i)
       tensors[i] = new torch::Tensor(ts[i]);
-   return 0;
+    return 0;
   )
   return 1;
 }
@@ -365,7 +366,7 @@ int at_load_multi_(tensor *tensors, char **tensor_names, int ntensors, char *fil
         tensors[i]->copy_(tmp_tensor);
       }
     }
-   return 0;
+    return 0;
   )
   return 1;
 }
@@ -416,7 +417,7 @@ int at_run_backward(tensor *tensors,
     for (int i = 0; i < ninputs; ++i) {
       outputs[i] = static_cast<tensor>(new torch::autograd::Variable(vl[i]));
     }
-   return 0;
+    return 0;
   )
   return 1;
 }
@@ -451,9 +452,9 @@ int ato_rmsprop(optimizer *out__, double learning_rate,
         .weight_decay(weight_decay)
         .momentum(momentum)
         .centered(centered != 0);
-      out__[0] = new torch::optim::RMSprop(vector<torch::Tensor>(), options);
+    out__[0] = new torch::optim::RMSprop(vector<torch::Tensor>(), options);
     return 0;
-    )
+  )
   return 1;
 }
 
@@ -492,7 +493,7 @@ int ato_set_learning_rate(optimizer t, double learning_rate) {
     else if (auto sgd = dynamic_cast<torch::optim::SGD*>(t))
       sgd->options.learning_rate(learning_rate);
     else
-     caml_invalid_argument("unexpected optimizer");
+      caml_invalid_argument("unexpected optimizer");
     return 0;
   )
   return 1;
@@ -507,7 +508,7 @@ int ato_set_momentum(optimizer t, double momentum) {
     else if (auto sgd = dynamic_cast<torch::optim::SGD*>(t))
       sgd->options.momentum(momentum);
     else
-     caml_invalid_argument("unexpected optimizer");
+      caml_invalid_argument("unexpected optimizer");
     return 0;
   )
   return 1;
@@ -561,25 +562,25 @@ int ats_free(scalar s) {
   return 1;
 }
 
-int atc_cuda_device_count(int *i) {
+int atc_cuda_device_count(int *out__) {
   PROTECT(
-    i[0] = torch::cuda::device_count();
+    out__[0] = torch::cuda::device_count();
     return 0;
   )
   return 1;
 }
 
-int atc_cuda_is_available(int *i) {
+int atc_cuda_is_available(int *out__) {
   PROTECT(
-    i[0] = torch::cuda::is_available();
+    out__[0] = torch::cuda::is_available();
     return 0;
   )
   return 1;
 }
 
-int atc_cudnn_is_available(int *i) {
+int atc_cudnn_is_available(int *out__) {
   PROTECT(
-    i[0] = torch::cuda::cudnn_is_available();
+    out__[0] = torch::cuda::cudnn_is_available();
     return 0;
   )
   return 1;
