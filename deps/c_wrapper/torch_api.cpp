@@ -239,7 +239,7 @@ int at_autocast_set_enabled(int *out__, int b) {
   PROTECT(
     bool is_enabled = at::autocast::is_enabled();
     at::autocast::set_enabled(b);
-    return is_enabled;
+    out__[0] = is_enabled;
   )
   return -1;
 }
@@ -247,8 +247,8 @@ int at_autocast_set_enabled(int *out__, int b) {
 int at_device(int *out__, tensor tensor) {
   PROTECT (
     auto device = tensor->device();
-    if (device.is_cpu()) return -1;
-    return device.index();
+    if (device.is_cpu()) out__[0] = -1;
+    out__[0] = device.index();
     return 0;
   )
   return 1;
