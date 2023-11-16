@@ -132,7 +132,9 @@ int at_copy_data(tensor tensor, void *vs, int64_t numel, int elt_size_in_bytes) 
       void *tensor_data = tmp_tensor.data_ptr();
       memcpy(vs, tensor_data, numel * elt_size_in_bytes);
     }
+    return 0;
   )
+  return 1;
 }
 
 int at_float_vec(tensor *out__, double *vs, int len, int type) {
@@ -183,14 +185,18 @@ int at_shape(tensor t, int *dims) {
   PROTECT(
     int i = 0;
     for (int dim : t->sizes()) dims[i++] = dim;
+    return 0;
   )
+  return 1;
 }
 
 int at_stride(tensor t, int64_t *dims) {
   PROTECT(
     int i = 0;
     for (int64_t dim: t->strides()) dims[i++] = dim;
+    return 0;
   )
+  return 1;
 }
 
 int at_scalar_type(int *out__, tensor t) {
@@ -243,7 +249,9 @@ int at_device(int *out__, tensor tensor) {
     auto device = tensor->device();
     if (device.is_cpu()) return -1;
     return device.index();
+    return 0;
   )
+  return 1;
 }
 
 int at_backward(tensor t, int keep_graph, int create_graph) {
@@ -311,7 +319,9 @@ int at_set_value_at_indexes(tensor t, int *indexes, int indexes_len, T v) {
       tensor = tensor[indexes[i]];
     }
     tensor.fill_(v);
+    return 0;
   )
+  return 1;
 }
 
 int at_set_double_value_at_indexes(tensor t, int *indexes, int indexes_len, double v) {
@@ -334,7 +344,9 @@ int at_print(tensor t) {
   PROTECT(
     torch::Tensor *tensor = (torch::Tensor*)t;
     cout << *tensor << endl;
+    return 0;
   )
+  return 1;
 }
 
 int at_to_string(char **out__, tensor t, int line_size) {
@@ -350,7 +362,9 @@ int at_to_string(char **out__, tensor t, int line_size) {
 int at_copy_(tensor dst, tensor src) {
   PROTECT(
     dst->copy_(*src);
+    return 0;
   )
+  return 1;
 }
 
 int at_save(tensor t, char *filename) {
@@ -363,7 +377,9 @@ int at_save_multi(tensor *tensors, char **tensor_names, int ntensors, char *file
     for (int i = 0; i < ntensors; ++i)
       archive.write(std::string(tensor_names[i]), *(tensors[i]), /* buffer=*/ false);
     archive.save_to(filename);
+    return 0;
   )
+  return 1;
 }
 
 int at_load_multi(tensor *tensors, char **tensor_names, int ntensors, char *filename) {
@@ -377,7 +393,9 @@ int at_load_multi(tensor *tensors, char **tensor_names, int ntensors, char *file
     // [read], no memory has to be freed.
     for (int i = 0; i < ntensors; ++i)
       tensors[i] = new torch::Tensor(ts[i]);
+      return 0;
   )
+  return 1;
 }
 
 int at_load_callback(char *filename, void (*f)(char *, tensor)) {
@@ -387,7 +405,9 @@ int at_load_callback(char *filename, void (*f)(char *, tensor)) {
       auto v = p.value;
       f((char*)p.name.c_str(), new torch::Tensor(v));
     }
+    return 0;
   )
+  return 1;
 }
 
 int at_load_multi_(tensor *tensors, char **tensor_names, int ntensors, char *filename) {
@@ -404,7 +424,9 @@ int at_load_multi_(tensor *tensors, char **tensor_names, int ntensors, char *fil
         tensors[i]->copy_(tmp_tensor);
       }
     }
+    return 0;
   )
+  return 1;
 }
 
 int at_load(tensor *out__, char *filename) {
@@ -472,7 +494,9 @@ int at_run_backward(tensor *tensors,
     for (int i = 0; i < ninputs; ++i) {
       outputs[i] = static_cast<tensor>(new torch::autograd::Variable(vl[i]));
     }
+    return 0;
   )
+  return 1;
 }
 
 int ato_adam(optimizer *out__, double learning_rate,
@@ -534,7 +558,9 @@ int ato_add_parameters(optimizer t, tensor *tensors, int ntensors) {
   PROTECT(
     for (int i = 0; i < ntensors; ++i)
       t->param_groups()[0].params().push_back(*(tensors[i]));
+      return 0;
   )
+  return 1;
 }
 
 int ato_set_learning_rate(optimizer t, double learning_rate) {
@@ -572,7 +598,9 @@ int ato_set_learning_rate(optimizer t, double learning_rate) {
     }
     else
       caml_invalid_argument("unexpected optimizer");
+      return 0;
   )
+  return 1;
 }
 
 int ato_set_momentum(optimizer t, double momentum) {
@@ -610,7 +638,9 @@ int ato_set_momentum(optimizer t, double momentum) {
     }
     else
      caml_invalid_argument("unexpected optimizer");
+     return 0;
   )
+  return 1;
 }
 
 
@@ -755,7 +785,9 @@ int atm_free(module m) {
 int atm_to(module m, int device, int dtype, bool non_blocking) {
   PROTECT(
     m->to(device_of_int(device), at::ScalarType(dtype), non_blocking);
+    return 0;
   )
+  return 1;
 }
 
 int ati_tensor(ivalue *out__, tensor t) {
@@ -987,7 +1019,9 @@ int ati_to_tuple(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = new torch::jit::IValue(vec[i]);
+      return 0;
   )
+  return 1;
 }
 
 int ati_to_generic_list(ivalue i,
@@ -1000,7 +1034,9 @@ int ati_to_generic_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = new torch::jit::IValue(vec[i]);
+      return 0;
   )
+  return 1;
 }
 
 int ati_to_generic_dict(ivalue i,
@@ -1016,7 +1052,9 @@ int ati_to_generic_dict(ivalue i,
       outputs[k++] = new torch::jit::IValue(it->key());
       outputs[k++] = new torch::jit::IValue(it->value());
     }
+    return 0;
   )
+  return 1;
 }
 
 int ati_to_int_list(ivalue i,
@@ -1029,7 +1067,9 @@ int ati_to_int_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = vec[i];
+      return 0;
   )
+  return 1;
 }
 
 int ati_to_double_list(ivalue i,
@@ -1042,7 +1082,9 @@ int ati_to_double_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = vec[i];
+      return 0;
   )
+  return 1;
 }
 
 int ati_to_bool_list(ivalue i,
@@ -1055,7 +1097,9 @@ int ati_to_bool_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = vec[i];
+      return 0;
   )
+  return 1;
 }
 
 int ati_to_tensor_list(ivalue i,
@@ -1068,7 +1112,9 @@ int ati_to_tensor_list(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = new torch::Tensor(vec[i]);
+      return 0;
   )
+  return 1;
 }
 
 int ati_free(ivalue i) {
