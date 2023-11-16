@@ -676,7 +676,6 @@ int ato_set_momentum(optimizer t, double momentum) {
   return 1;
 }
 
-
 int ato_zero_grad(optimizer t) {
   PROTECT(
     t->zero_grad();
@@ -694,7 +693,11 @@ int ato_step(optimizer t) {
 }
 
 int ato_free(optimizer t) {
-  delete(t);
+  PROTECT(
+    delete(t);
+    return 0;
+  )
+  return 1;
 }
 
 int ats_int(scalar *out__, int64_t v) {
@@ -741,7 +744,11 @@ int ats_to_string(char **out__, scalar s) {
 }
 
 int ats_free(scalar s) {
-  delete(s);
+  PROTECT(
+    delete(s);
+    return 0;
+  )
+  return 1;
 }
 
 int atc_cuda_device_count(int *out__) {
