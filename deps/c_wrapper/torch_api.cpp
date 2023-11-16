@@ -208,7 +208,11 @@ int at_scalar_type(int *out__, tensor t) {
 }
 
 int at_autocast_clear_cache() {
-  at::autocast::clear_cache();
+  PROTECT(
+    at::autocast::clear_cache();
+    return 0;
+  )
+  return 1;
 }
 
 int at_autocast_decrement_nesting(int *out__) {
@@ -216,7 +220,7 @@ int at_autocast_decrement_nesting(int *out__) {
     out__[0] = at::autocast::decrement_nesting();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_autocast_increment_nesting(int *out__) {
@@ -224,7 +228,7 @@ int at_autocast_increment_nesting(int *out__) {
     out__[0] = at::autocast::increment_nesting();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_autocast_is_enabled(int *out__) {
@@ -232,7 +236,7 @@ int at_autocast_is_enabled(int *out__) {
     out__[0] = at::autocast::is_enabled();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_autocast_set_enabled(int *out__, int b) {
@@ -241,7 +245,7 @@ int at_autocast_set_enabled(int *out__, int b) {
     at::autocast::set_enabled(b);
     out__[0] = is_enabled;
   )
-  return -1;
+  return 1;
 }
 
 int at_device(int *out__, tensor tensor) {
@@ -255,7 +259,11 @@ int at_device(int *out__, tensor tensor) {
 }
 
 int at_backward(tensor t, int keep_graph, int create_graph) {
-  PROTECT(t->backward({}, keep_graph, create_graph);)
+  PROTECT(
+    t->backward({}, keep_graph, create_graph);
+    return 0;
+  )
+  return 1;
 }
 
 int at_requires_grad(int *out__, tensor t) {
@@ -263,16 +271,17 @@ int at_requires_grad(int *out__, tensor t) {
     out__[0] = t->requires_grad();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_grad_set_enabled(int *out__, int b) {
   PROTECT(
     bool is_enabled = torch::autograd::GradMode::is_enabled();
     torch::autograd::GradMode::set_enabled(b);
-    return is_enabled;
+    out__[0] = is_enabled;
+    return 0;
   )
-  return -1;
+  return 1;
 }
 
 int at_get(tensor *out__, tensor t, int index) {
@@ -333,11 +342,19 @@ int at_set_int64_value_at_indexes(tensor t, int *indexes, int indexes_len, int64
 }
 
 int at_fill_double(tensor t, double v) {
-  PROTECT(t->fill_(v);)
+  PROTECT(
+    t->fill_(v);
+    return 0;
+  )
+  return 1;
 }
 
 int at_fill_int64(tensor t, int64_t v) {
-  PROTECT(t->fill_(v);)
+  PROTECT(
+    t->fill_(v);
+    return 0;
+  )
+  return 1;
 }
 
 int at_print(tensor t) {
@@ -368,7 +385,11 @@ int at_copy_(tensor dst, tensor src) {
 }
 
 int at_save(tensor t, char *filename) {
-  PROTECT(torch::save(*t, filename);)
+  PROTECT(
+    torch::save(*t, filename);
+    return 0;
+  )
+  return 1;
 }
 
 int at_save_multi(tensor *tensors, char **tensor_names, int ntensors, char *filename) {
@@ -1005,7 +1026,7 @@ int ati_tuple_length(int *out__, ivalue i) {
     out__[0] = i->toTuple()->elements().size();
     return 0;
   )
-  return -1;
+  return 1;
 }
 
 int ati_to_tuple(ivalue i,
@@ -1019,7 +1040,7 @@ int ati_to_tuple(ivalue i,
     }
     for (int i = 0; i < noutputs; ++i)
       outputs[i] = new torch::jit::IValue(vec[i]);
-      return 0;
+    return 0;
   )
   return 1;
 }
