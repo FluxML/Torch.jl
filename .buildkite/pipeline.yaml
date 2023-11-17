@@ -1,38 +1,42 @@
-env:
-  TORCH_VERSION: "1.10.2"
-
 steps:
   - group: C wrapper
     steps:
       - label: Build C wrapper (CPU)
         agents:
           queue: "juliagpu"
+        env:
+          TORCH_VARIANT: cpu
+          TORCH_VERSION: "1.10.2"
         commands: |
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential cmake unzip
           cd /usr/local
-          wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-$TORCH_VERSION%2Bcpu.zip
+          wget https://download.pytorch.org/libtorch/$$TORCH_VARIANT/libtorch-cxx11-abi-shared-with-deps-$$TORCH_VERSION%2B$$TORCH_VARIANT.zip
           unzip -q libtorch-*.zip
           rm libtorch-*.zip
           cd -
           export CMAKE_PREFIX_PATH=/usr/local/libtorch
           cd deps/c_wrapper
-          cmake -S . -B build
+          cmake -S . -B build -DUSE_CUDA=OFF
           cmake --build build
       - label: Build C wrapper (CUDA)
         agents:
           queue: "juliagpu"
+        env:
+          CUDA_VERSION: "11.3.1"
+          TORCH_VERSION: "1.10.2"
         commands: |
+          export TORCH_VARIANT="cu$(echo $$CUDA_VERSION | cut -d . -f 1-2 | tr -d '.')"
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential cmake unzip
           cd /usr/local
-          wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-$TORCH_VERSION%2Bcpu.zip
+          wget https://download.pytorch.org/libtorch/$$TORCH_VARIANT/libtorch-cxx11-abi-shared-with-deps-$$TORCH_VERSION%2B$$TORCH_VARIANT.zip
           unzip -q libtorch-*.zip
           rm libtorch-*.zip
           cd -
           export CMAKE_PREFIX_PATH=/usr/local/libtorch
           cd deps/c_wrapper
-          cmake -S . -B build -DTORCH_C_API_CUDA=ON
+          cmake -S . -B build -DUSE_CUDA=ON
           cmake --build build
   - label: "GPU integration with julia v1.6"
     plugins:
