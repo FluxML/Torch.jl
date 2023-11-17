@@ -20,16 +20,22 @@ steps:
           cd deps/c_wrapper
           cmake -S . -B build -DUSE_CUDA=$$USE_CUDA
           cmake --build build
-      - label: Build C wrapper (CUDA {{ matrix.cuda_version }})
+      - label: Build C wrapper (CUDA {{ matrix.cuda_version }}, Torch {{ matrix.torch_version }})
         agents:
           queue: "juliagpu"
         matrix:
           setup:
-            cuda_version:
+            cuda_version: 
               - "11.3.1"
+            torch_version: 
+              - "1.10.2"
+          adjustments:
+            - with:
+                cuda_version: "12.1.0"
+                torch_version: "2.1.0"
         env:
           CUDA_VERSION: "{{ matrix.cuda_version }}"
-          TORCH_VERSION: "1.10.2"
+          TORCH_VERSION: "{{ matrix.torch_version }}"
           USE_CUDA: ON
         commands:
           - export TORCH_VARIANT="cu$(echo $$CUDA_VERSION | cut -d . -f 1-2 | tr -d '.')"
