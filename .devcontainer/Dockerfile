@@ -1,18 +1,30 @@
-ARG BASE_IMAGE_TAG
+ARG BASE_IMAGE_VARIANT=ubuntu
+ARG BASE_IMAGE_VERSION=22.04
+ARG CUDA_VERSION=11.8.0
 
-FROM mcr.microsoft.com/devcontainers/cpp:$BASE_IMAGE_TAG
+FROM nvidia/cuda:${CUDA_VERSION}-cudnn8-devel-${BASE_IMAGE_VARIANT}${BASE_IMAGE_VERSION}
 
-ARG OCAML_VERSION
-ARG OPAM_VERSION
-ARG TORCH_VERSION
+ARG CUDA_VERSION
 
-RUN sudo apt-get update \
-    && sudo apt-get satisfy -y "ocaml (>= $OCAML_VERSION)" "opam (>= $OPAM_VERSION)" \
+ARG OCAML_VERSION=4
+ARG OPAM_VERSION=2
+
+ARG TORCH_VARIANT
+ARG TORCH_VERSION=2.1.1
+
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+    && apt-get satisfy -y "ocaml (>= $OCAML_VERSION)" "opam (>= $OPAM_VERSION)" \
     && rm -rf /var/lib/apt/lists/*
 
-RUN cd /usr/local \
-    && sudo wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-$TORCH_VERSION%2Bcpu.zip \
-    && sudo unzip libtorch-*.zip \
-    && sudo rm libtorch-*.zip
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN if [ -z "$TORCH_VARIANT" ]; then export TORCH_VARIANT="cu$(echo $CUDA_VERSION | cut -d . -f 1-2 | tr -d '.')"; fi \
+    && cd /usr/local \
+    && wget -q "https://download.pytorch.org/libtorch/$TORCH_VARIANT/libtorch-cxx11-abi-shared-with-deps-$TORCH_VERSION%2B$TORCH_VARIANT.zip" \
+    && unzip -q libtorch-*.zip \
+    && rm libtorch-*.zip
 
 ENV CMAKE_PREFIX_PATH=/usr/local/libtorch
