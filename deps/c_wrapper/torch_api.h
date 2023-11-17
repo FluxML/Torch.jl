@@ -9,7 +9,7 @@ typedef torch::Scalar *scalar;
 typedef torch::optim::Optimizer *optimizer;
 typedef torch::jit::script::Module *module;
 typedef torch::jit::IValue *ivalue;
-char* myerr = "";
+char const *myerr = "";
 #define PROTECT(x) \
   try { \
     x \
