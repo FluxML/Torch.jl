@@ -77,6 +77,8 @@ int at_empty_cache() {
   PROTECT(
 #ifdef __NVCC__
     c10::cuda::CUDACachingAllocator::emptyCache();
+#else
+#warning "CUDA is disabled, at_empty_cache will be non-functional"
 #endif
     return 0;
   )
@@ -96,6 +98,8 @@ int at_sync() {
 #ifdef __NVCC__
     at::cuda::CUDAStream stream = at::cuda::getCurrentCUDAStream();
     C10_CUDA_CHECK(cudaStreamSynchronize(stream));
+#else
+#warning "CUDA is disabled, at_sync will be non-functional"
 #endif
     return 0;
   )
