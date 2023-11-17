@@ -2,8 +2,10 @@
 #include<torch/torch.h>
 #include<ATen/autocast_mode.h>
 #include<torch/script.h>
+#ifdef __NVCC__
 #include<c10/cuda/CUDACachingAllocator.h>
 #include<c10/cuda/CUDAStream.h>
+#endif
 #include<vector>
 #include "torch_api.h"
 
@@ -73,7 +75,9 @@ int at_new_tensor(tensor *out__) {
 
 int at_empty_cache() {
   PROTECT(
+#ifdef __NVCC__
     c10::cuda::CUDACachingAllocator::emptyCache();
+#endif
     return 0;
   )
   return 1;
@@ -89,8 +93,10 @@ int at_no_grad(int flag) {
 
 int at_sync() {
   PROTECT(
+#ifdef __NVCC__
     at::cuda::CUDAStream stream = at::cuda::getCurrentCUDAStream();
     C10_CUDA_CHECK(cudaStreamSynchronize(stream));
+#endif
     return 0;
   )
   // torch::cuda::synchronize();

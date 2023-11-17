@@ -5,7 +5,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 
 find_package(Torch REQUIRED)
 
-enable_language(CUDA)
+option(TORCH_C_API_CUDA "Use CUDA" OFF)
+if(TORCH_C_API_CUDA)
+    enable_language(CUDA)
+endif()
 
 include_directories(SYSTEM path)
 
