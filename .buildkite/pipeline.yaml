@@ -43,6 +43,7 @@ steps:
           USE_CUDA: ON
         commands:
           - |
+            curl -fsSL https://install.julialang.org | sh -s -- --default-channel 1.9 --path /opt/juliaup --yes
             export CUDA_ROOT=$(julia --project=$(mktemp -d) --eval '
                 using Pkg;
                 CUDA_VERSION = VersionNumber(ENV["CUDA_VERSION"]);
