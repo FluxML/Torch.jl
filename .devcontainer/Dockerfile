@@ -20,6 +20,34 @@ RUN apt-get update \
     && apt-get satisfy -y "ocaml (>= $OCAML_VERSION)" "opam (>= $OPAM_VERSION)" \
     && rm -rf /var/lib/apt/lists/*
 
+ENV JULIA_DEPOT_PATH=/opt/julia_depot
+RUN curl -fsSL https://install.julialang.org | sh -s -- --default-channel 1.9 --path /opt/juliaup --yes
+ENV PATH=/opt/juliaup/bin:$PATH
+
+RUN CUDA_ROOT=$(julia --project=$(mktemp -d) --eval ' \
+    using Pkg; \
+    CUDA_VERSION = VersionNumber(ENV["CUDA_VERSION"]); \
+    if CUDA_VERSION >= v"11" && CUDA_VERSION < v"11.4" \
+        Pkg.add(name="CUDA_full_jll", version=ENV["CUDA_VERSION"]); \
+        using CUDA_full_jll; \
+        println(CUDA_full_jll.artifact_dir); \
+    else \
+        Pkg.add(name="CUDA_SDK_jll", version=ENV["CUDA_VERSION"]); \
+        using CUDA_SDK_jll; \
+        println(CUDA_SDK_jll.artifact_dir); \
+    end'); \
+    ln -s $CUDA_ROOT/cuda /usr/local/cuda
+ENV PATH=$PATH:/usr/local/cuda/bin
+
+ARG CUDNN_VERSION=8.9.4
+RUN CUDNN_ROOT=$(julia --project=$(mktemp -d) --eval ' \
+        using Pkg; \
+        Pkg.add(name="CUDNN_jll", version=ENV["CUDNN_VERSION"]); \
+        using CUDNN_jll; \
+        println(CUDNN_jll.artifact_dir)') \
+    && for F in $CUDNN_ROOT/include/cudnn*.h; do ln -s $F /usr/local/cuda/include/$(basename $F); done
+    && for F in $CUDNN_ROOT/lib/libcudnn*; do ln -s $F /usr/local/cuda/lib64/$(basename $F); done
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN if [ -z "$TORCH_VARIANT" ]; then export TORCH_VARIANT="cu$(echo $CUDA_VERSION | cut -d . -f 1-2 | tr -d '.')"; fi \
