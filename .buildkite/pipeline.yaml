@@ -59,7 +59,7 @@ steps:
                     println(CUDA_SDK_jll.artifact_dir);
                 end');
                 ln -s $$CUDA_ROOT/cuda /usr/local/cuda
-            export PATH=$PATH:/usr/local/cuda/bin
+            export PATH=$$PATH:/usr/local/cuda/bin
             
             export CUDNN_ROOT=$$(julia --project=$$(mktemp -d) --eval '
                     using Pkg;
