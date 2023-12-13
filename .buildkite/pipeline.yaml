@@ -41,9 +41,11 @@ steps:
           CUDNN_VERSION: "{{ matrix.cudnn_version }}"
           TORCH_VERSION: "{{ matrix.torch_version }}"
           USE_CUDA: ON
+        plugins:
+          - JuliaCI/julia#v1:
+              version: "1.9"
         commands:
           - |
-            curl -fsSL https://install.julialang.org | sh -s -- --default-channel 1.9 --path /opt/juliaup --yes
             export CUDA_ROOT=$(julia --project=$(mktemp -d) --eval '
                 using Pkg;
                 CUDA_VERSION = VersionNumber(ENV["CUDA_VERSION"]);
