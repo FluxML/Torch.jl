@@ -66,8 +66,8 @@ steps:
                     Pkg.add(name="CUDNN_jll", version=ENV["CUDNN_VERSION"]);
                     using CUDNN_jll;
                     println(CUDNN_jll.artifact_dir)')
-                && for F in $$CUDNN_ROOT/include/cudnn*.h; do ln -s $$F /usr/local/cuda/include/$$(basename $$F); done
-                && for F in $$CUDNN_ROOT/lib/libcudnn*; do ln -s $$F /usr/local/cuda/lib64/$$(basename $$F); done
+            for F in $$CUDNN_ROOT/include/cudnn*.h; do ln -s $$F /usr/local/cuda/include/$$(basename $$F); done
+            for F in $$CUDNN_ROOT/lib/libcudnn*; do ln -s $$F /usr/local/cuda/lib64/$$(basename $$F); done
           - export TORCH_VARIANT="cu$(echo $$CUDA_VERSION | cut -d . -f 1-2 | tr -d '.')"
           - *build_c_wrapper_commands
   - label: "GPU integration with julia v1.6"
