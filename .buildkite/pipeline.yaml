@@ -20,7 +20,7 @@ steps:
           cd deps/c_wrapper
           cmake -S . -B build -DUSE_CUDA=$$USE_CUDA
           cmake --build build
-      - label: Build C wrapper (CUDA {{ matrix.cuda_version }}, Torch {{ matrix.torch_version }})
+      - label: Build C wrapper (CUDA {{ matrix.cuda_version }}, CUDNN {{ matrix.cudnn_version }}, Torch {{ matrix.torch_version }})
         agents:
           queue: "juliagpu"
         matrix:
@@ -33,7 +33,7 @@ steps:
               - "1.10.2"
           adjustments:
             - with:
-                cuda_version: "12.3.1"
+                cuda_version: "11.8.0"
                 cudnn_version: "8.9.4"
                 torch_version: "2.1.0"
         env:
