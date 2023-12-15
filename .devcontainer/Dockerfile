@@ -21,6 +21,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JULIA_DEPOT_PATH=/opt/julia_depot
+ENV JULIAUP_DEPOT_PATH=/opt/juliaup
 RUN curl -fsSL https://install.julialang.org | sh -s -- --default-channel 1.9 --path /opt/juliaup --yes
 ENV PATH=/opt/juliaup/bin:$PATH
 
@@ -40,13 +41,7 @@ RUN CUDA_ROOT=$(julia --project=$(mktemp -d) --eval ' \
 ENV PATH=$PATH:/usr/local/cuda/bin
 
 ARG CUDNN_VERSION=8.9.4
-RUN CUDNN_ROOT=$(julia --project=$(mktemp -d) --eval ' \
-        using Pkg; \
-        Pkg.add(name="CUDNN_jll", version=ENV["CUDNN_VERSION"]); \
-        using CUDNN_jll; \
-        println(CUDNN_jll.artifact_dir)') \
-    && for F in $CUDNN_ROOT/include/cudnn*.h; do ln -s $F /usr/local/cuda/include/$(basename $F); done
-    && for F in $CUDNN_ROOT/lib/libcudnn*; do ln -s $F /usr/local/cuda/lib64/$(basename $F); done
+ENV CUDNN_VERSION=$CUDNN_VERSION
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

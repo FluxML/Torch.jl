@@ -5,7 +5,7 @@
       "BASE_IMAGE_VARIANT": "debian",
       "BASE_IMAGE_VERSION": "11",
       "CUDA_VERSION": "11.3.1",
-      "CUDNN_VERSION": "8.2.4",
+      "CUDNN_VERSION": "8.9.4",
       "OCAML_VERSION": "4",
       "OPAM_VERSION": "2",
       "TORCH_VERSION": "1.10.2"
@@ -14,15 +14,13 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "julialang.language-julia",
         "ms-vscode.cpptools-extension-pack"
       ]
     }
   },
-  "features": {
-    "ghcr.io/julialang/devcontainer-features/julia:1": {}
-  },
   "hostRequirements": {
     "gpu": "optional"
   },
-  "postCreateCommand": "opam init --disable-sandboxing --auto-setup; sudo chown -R vscode:vscode /opt/juliaup /opt/julia_depot"
+  "postCreateCommand": ".devcontainer/postCreate.sh"
 }
