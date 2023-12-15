@@ -9,8 +9,7 @@ typedef torch::Scalar *scalar;
 typedef torch::optim::Optimizer *optimizer;
 typedef torch::jit::script::Module *module;
 typedef torch::jit::IValue *ivalue;
-typedef torch::NoGradGuard *ngg;
-char* myerr = "";
+char const *myerr = "";
 #define PROTECT(x) \
   try { \
     x \
@@ -25,7 +24,6 @@ typedef void *optimizer;
 typedef void *scalar;
 typedef void *module;
 typedef void *ivalue;
-typedef void *ngg;
 #endif
 
 int get_last_error(char *);
@@ -39,33 +37,45 @@ int at_sync();
 int at_from_blob(tensor *, void *data, int64_t *dims, int ndims, int64_t *strides, int nstrides, int dev);
 int at_tensor_of_data(tensor *, void *vs, int64_t *dims, int ndims, int element_size_in_bytes, int type);
 int at_copy_data(tensor tensor, void *vs, int64_t numel, int element_size_in_bytes);
-int at_float_vec(double *values, int value_len, int type);
-int at_int_vec(int64_t *values, int value_len, int type);
+int at_float_vec(tensor *, double *values, int value_len, int type);
+int at_int_vec(tensor *, int64_t *values, int value_len, int type);
 
-int at_defined(int *i, tensor);
-int at_dim(int *i, tensor);
+int at_defined(int *, tensor);
+int at_is_sparse(int *, tensor);
+int at_device(int *, tensor);
+int at_dim(int *, tensor);
 int at_shape(tensor, int *);
-int at_scalar_type(int *i, tensor);
+int at_stride(tensor, int *);
+int at_scalar_type(int *, tensor);
+
+int at_autocast_clear_cache();
+int at_autocast_decrement_nesting(int *);
+int at_autocast_increment_nesting(int *);
+int at_autocast_is_enabled(int *);
+int at_autocast_set_enabled(int *, int b);
 
 int at_backward(tensor, int, int);
-int at_requires_grad(int *i, tensor);
-int at_grad_set_enabled(int);
+int at_requires_grad(int *, tensor);
+int at_grad_set_enabled(int *, int);
 
 int at_get(tensor *, tensor, int index);
 int at_fill_double(tensor, double);
 int at_fill_int64(tensor, int64_t);
 
-int at_double_value_at_indexes(double *i, tensor, int *indexes, int indexes_len);
-int at_int64_value_at_indexes(double *i, tensor, int *indexes, int indexes_len);
+int at_double_value_at_indexes(double *, tensor, int *indexes, int indexes_len);
+int at_int64_value_at_indexes(int64_t *, tensor, int *indexes, int indexes_len);
 int at_set_double_value_at_indexes(tensor, int *indexes, int indexes_len, double v);
 int at_set_int64_value_at_indexes(tensor, int *indexes, int indexes_len, int64_t v);
 
 int at_copy_(tensor dst, tensor src);
 
 int at_print(tensor);
-// char *at_to_string(tensor, int line_size);
+int at_to_string(char **, tensor, int line_size);
 int at_save(tensor, char *filename);
-tensor at_load(char *filename);
+int at_load(tensor *, char *filename);
+
+int at_get_num_threads(int *);
+int at_set_num_threads(int n_threads);
 
 int at_save_multi(tensor *tensors, char **tensor_names, int ntensors, char *filename);
 /* [at_load_multi] takes as input an array of nullptr for [tensors]. */
@@ -88,7 +98,8 @@ int at_run_backward(tensor *tensors,
 int ato_adam(optimizer *, double learning_rate,
                    double beta1,
                    double beta2,
-                   double weight_decay);
+                   double weight_decay,
+                   double eps);
 int ato_rmsprop(optimizer *, double learning_rate,
                       double alpha,
                       double eps,
@@ -116,23 +127,43 @@ int atc_cuda_is_available(int *);
 int atc_cudnn_is_available(int *);
 int atc_set_benchmark_cudnn(int b);
 
-int atm_load(char *, module *);
+int atm_load(module *, char *);
 int atm_forward(tensor *, module, tensor *tensors, int ntensors);
 int atm_forward_(ivalue *, module,
                     ivalue *ivalues,
                     int nivalues);
 int atm_free(module);
 
+int ati_none(ivalue *);
 int ati_tensor(ivalue *, tensor);
+int ati_bool(ivalue *, int);
 int ati_int(ivalue *, int64_t);
 int ati_double(ivalue *, double);
 int ati_tuple(ivalue *, ivalue *, int);
+int ati_string(ivalue *, char *);
+int ati_tuple(ivalue *, ivalue *, int);
+int ati_generic_list(ivalue *, ivalue *, int);
+int ati_generic_dict(ivalue *, ivalue *, int);
+int ati_int_list(ivalue *, int64_t *, int);
+int ati_double_list(ivalue *, double *, int);
+int ati_bool_list(ivalue *, char *, int);
+int ati_string_list(ivalue *, char **, int);
+int ati_tensor_list(ivalue *, tensor *, int);
 
 int ati_to_tensor(tensor *, ivalue);
 int ati_to_int(int64_t *, ivalue);
 int ati_to_double(double *, ivalue);
+int ati_to_string(char **, ivalue);
+int ati_to_bool(int *, ivalue);
+int ati_length(int *, ivalue);
 int ati_tuple_length(int *, ivalue);
 int ati_to_tuple(ivalue, ivalue *, int);
+int ati_to_generic_list(ivalue, ivalue *, int);
+int ati_to_generic_dict(ivalue, ivalue *, int);
+int ati_to_int_list(ivalue, int64_t *, int);
+int ati_to_double_list(ivalue, double *, int);
+int ati_to_bool_list(ivalue, char *, int);
+int ati_to_tensor_list(ivalue, tensor *, int);
 
 int ati_tag(int *, ivalue);
 

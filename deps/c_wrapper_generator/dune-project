@@ -19,7 +19,7 @@
  (name wrapper_generator)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune base stdio yaml)
+ (depends ocaml dune base ppx_string stdio yaml)
  (tags
   (topics "to describe" your project)))
 

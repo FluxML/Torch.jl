@@ -13,6 +13,7 @@ depends: [
   "ocaml"
   "dune" {>= "3.4"}
   "base"
+  "ppx_string"
   "stdio"
   "yaml"
   "odoc" {with-doc}
