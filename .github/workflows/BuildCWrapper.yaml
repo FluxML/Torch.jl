@@ -1,0 +1,97 @@
+name: Build C Wrapper
+
+on:
+  push:
+    branches:
+      - master
+    tags: ['*']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  # Skip intermediate builds: always.
+  # Cancel intermediate builds: only if it is a pull request build.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+
+jobs:
+  build_cpu:
+    name: Build (CPU)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions: # needed to allow julia-actions/cache to proactively delete old caches that it has created
+      actions: write
+      contents: read
+    container:
+      image: debian:10
+      env:
+        GCC_VERSION: "8"
+        TORCH_VARIANT: cpu
+        TORCH_VERSION: "1.10.2"
+        USE_CUDA: "OFF"
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./.dev/install_build_deps.sh $GCC_VERSION
+      - name: Install Torch
+        run: ./.dev/install_torch.sh $TORCH_VARIANT $TORCH_VERSION
+      - name: Build
+        run: |
+          export CMAKE_PREFIX_PATH=/usr/local/libtorch
+          cd deps/c_wrapper
+          cmake -S . -B build -DUSE_CUDA=$USE_CUDA
+          cmake --build build
+  build_cuda:
+    name: Build (CUDA ${{ matrix.cuda_version }}, CUDNN ${{ matrix.cudnn_version }}, GCC ${{ matrix.gcc_version }}, Torch ${{ matrix.torch_version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions: # needed to allow julia-actions/cache to proactively delete old caches that it has created
+      actions: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - x64
+        cuda_version:
+          - "10.2.89"
+          - "11.3.1"
+        cudnn_version:
+          - "8.2.4"
+        gcc_version:
+          - "8"
+        julia_version:
+          - "1.9"
+        os_version:
+          - "10"
+        torch_version:
+          - "1.10.2"
+    container:
+      image: debian:${{ matrix.os_version }}
+      env:
+        CUDA_VERSION: ${{ matrix.cuda_version }}
+        CUDNN_VERSION: ${{ matrix.cudnn_version }}
+        GCC_VERSION: ${{ matrix.gcc_version }}
+        TORCH_VERSION: ${{ matrix.torch_version }}
+        USE_CUDA: "ON"
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./.dev/install_build_deps.sh $GCC_VERSION
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.julia_version }}
+          arch: ${{ matrix.arch }}
+      - uses: julia-actions/cache@v1
+      - name: Install CUDA SDK ${{ matrix.cuda_version }} and CUDNN ${{ matrix.cudnn_version }}
+        run: |
+          ./.dev/install_cuda_sdk.sh $CUDA_VERSION
+          ./.dev/install_cudnn.sh $CUDA_VERSION $CUDNN_VERSION
+      - name: Install Torch
+        run: |
+          export TORCH_VARIANT="cu$(echo $CUDA_VERSION | cut -d . -f 1-2 | tr -d '.')"
+          ./.dev/install_torch.sh $TORCH_VARIANT $TORCH_VERSION
+      - name: Build
+        run: |
+          export CMAKE_PREFIX_PATH=/usr/local/libtorch
+          cd deps/c_wrapper
+          cmake -S . -B build -DUSE_CUDA=$USE_CUDA
+          cmake --build build
