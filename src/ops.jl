@@ -185,9 +185,10 @@ end
 function _maxpool(t::Tensor{T,M}, pdims::PoolDims{N,K,S,P,D};
                   ceil_mode = 0) where {N,K,S,P,D, T,M}
   k = collect(NNlib.kernel_size(pdims))
-  s = collect(S)
-  p = [P[1];P[3]]
-  d = collect(D)
+  s = collect(NNlib.stride(pdims))
+  padding = NNlib.padding(pdims)
+  p = [padding[1];padding[3]]
+  d = collect(NNlib.dilation(pdims))
 
   ptr = Ref(Ptr{Cvoid}())
 
@@ -205,9 +206,10 @@ end
 function _maxpool_with_inds(t::Tensor{T,M}, pdims::PoolDims{N,K,S,P,D};
                             ceil_mode = 0) where {N,K,S,P,D, T,M}
   k = collect(NNlib.kernel_size(pdims))
-  s = collect(S)
-  p = [P[1];P[3]]
-  d = collect(D)
+  s = collect(NNlib.stride(pdims))
+  padding = NNlib.padding(pdims)
+  p = [padding[1];padding[3]]
+  d = collect(NNlib.dilation(pdims))
 
   ptr = [Ptr{Cvoid}(), Ptr{Cvoid}()]
 

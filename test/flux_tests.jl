@@ -5,7 +5,7 @@ using Torch
 using Torch: Tensor, tensor
 
 @testset "Flux" begin
-    resnet = ResNet()
+    resnet = ResNet(18)
     tresnet = Flux.fmap(Torch.to_tensor, resnet.layers)
 
     ip = rand(Float32, 224, 224, 3, 1) # An RGB Image

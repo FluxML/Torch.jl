@@ -1,5 +1,5 @@
 function get_error()
-  err = cglobal((:myerr, libdoeye_caml), Cstring) |> unsafe_load
+  err = cglobal((:myerr, libtorch_c_api), Cstring) |> unsafe_load
   unsafe_string(err)
 end
 

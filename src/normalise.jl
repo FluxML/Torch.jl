@@ -36,11 +36,12 @@ function ∇batchnorm_element(dy::AbstractArray, input::Tensor{T,N},
 
   ptr = Ref(Ptr{Cvoid}())
   dy_ = tensor(dy, dev = on(input))
+  count = Tensor(Int32, size(input)..., dev = on(input))
 
   atg_batch_norm_backward_elemt(ptr, dy_.ptr, input.ptr,
                                  running_mean.ptr, invstd.ptr,
                                  weight.ptr,
-                                 weight.ptr, weight.ptr)
+                                 weight.ptr, weight.ptr, count.ptr) # Hack passing weight.ptr as mean_dy, and mean_dy_xmu
 
   Tensor{T,N}(ptr[], on(input))
 end

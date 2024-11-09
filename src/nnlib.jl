@@ -5,8 +5,11 @@ using NNlib: PoolDims
 import NNlib: conv, depthwiseconv
 
 function NNlib.conv(x::Tensor{xT, N}, w::Tensor, b::Tensor{T},
-                    cdims::DenseConvDims{M,K,C_in,C_out,S,P,D,F}) where {T,N,xT,M,K,C_in,C_out,S,P,D,F}
-  op = conv2d(x, w, b, stride = collect(S), padding = [P[1];P[3]], dilation = collect(D))
+                    cdims::DenseConvDims{M,K,S,P,D}) where {T,N,xT,M,K,S,P,D}
+  stride = NNlib.stride(cdims)
+  padding = NNlib.padding(cdims)
+  dilation = NNlib.dilation(cdims)
+  op = conv2d(x, w, b, stride = collect(stride), padding = [padding[1];padding[3]], dilation = collect(dilation))
   op
 end
 
@@ -70,18 +73,18 @@ end
 
 function NNlib.meanpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}) where {N,K,S,P,D}
   ks = collect(NNlib.kernel_size(pdims))
-  stride = collect(S)
-  padding = [P[1];P[3]]
+  stride = collect(NNlib.stride(pdims))
+  padding = NNlib.padding(pdims)
   # op_sz = NNlib.output_size(pdims)
 
-  _meanpool(t, ks, stride=stride, padding=padding)
+  _meanpool(t, ks, stride=stride, padding=[padding[1];padding[3]])
 end
 
 function NNlib.maxpool(t::Tensor, pdims::PoolDims{N,K,S,P,D}) where {N,K,S,P,D}
   ks = collect(NNlib.kernel_size(pdims))
-  stride = collect(S)
-  padding = [P[1];P[3]]
-  dilation = collect(D)
+  stride = collect(NNlib.stride(pdims))
+  padding = NNlib.padding(pdims)
+  dilation = collect(NNlib.dilation(pdims))
 
-  _maxpool(t, ks, stride=stride, padding=padding, dilation=dilation)
+  _maxpool(t, ks, stride=stride, padding=[padding[1];padding[3]], dilation=dilation)
 end

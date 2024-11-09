@@ -24,7 +24,7 @@ RUN /opt/container/install_build_deps.sh $GCC_VERSION \
 
 ENV JULIA_DEPOT_PATH=/opt/julia_depot
 ENV JULIAUP_DEPOT_PATH=/opt/juliaup
-RUN curl -fsSL https://install.julialang.org | sh -s -- --default-channel 1.9 --path /opt/juliaup --yes
+RUN curl -fsSL https://install.julialang.org | sh -s -- --default-channel 1.11 --path /opt/juliaup --yes
 ENV PATH=/opt/juliaup/bin:$PATH
 
 ENV CUDA_VERSION=$CUDA_VERSION
