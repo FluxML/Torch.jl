@@ -1,33 +1,39 @@
 steps:
-  - label: "GPU integration with julia v1.6"
-    plugins:
-      - JuliaCI/julia#v1:
-          version: "1.6"
-      - JuliaCI/julia-test#v1: ~
+  - label: "Test using Julia {{matrix.julia_version}} and CUDA {{matrix.cuda_version}}"
     agents:
       queue: "juliagpu"
-      cuda: "true"
+      cuda: "*"
       cap: sm_75
+    matrix:
+      setup:
+        julia_version:
+          - "1.10"
+          - "1.11"
+        cuda_version:
+          - "10.2"
+          - "11.3"
+    plugins:
+      - JuliaCI/julia#v1:
+          version: "{{matrix.julia_version}}"
+      - JuliaCI/julia-test#v1: ~
+    env:
+      CUDA_VERSION: "{{matrix.cuda_version}}"
     command: |
-      TMP_PROJECT=`mktemp -d`
-      
-      cd $$TMP_PROJECT
-
-      touch Project.toml
+      CUDA_VERSION_MAJOR_MINOR=$$(echo $$CUDA_VERSION | cut -d . -f 1-2)
       cat <<EOT > LocalPreferences.toml
       [CUDA_Runtime_jll]
-      version = "10.2"
+      version = "$$CUDA_VERSION_MAJOR_MINOR"
       EOT
-
-      export CUDA_RUNTIME_ROOT=`julia --project --eval '
+      julia --project --eval '
         using Pkg
-        Pkg.add(name="CUDA_Runtime_jll", version="0.2")
-        using CUDA_Runtime_jll
-        println(CUDA_Runtime_jll.artifact_dir)
-      '`
-
-      ls -1 $$CUDA_RUNTIME_ROOT/lib/libcudart*
-      export LD_LIBRARY_PATH=$$CUDA_RUNTIME_ROOT/lib
-
-      cd $$BUILDKITE_BUILD_CHECKOUT_PATH
+        CUDA_VERSION = VersionNumber(ENV["CUDA_VERSION"])
+        if Base.thisminor(CUDA_VERSION) == v"11.3"
+            Pkg.add(name="CUDA_Runtime_jll", version="0.7")
+        else
+            Pkg.add(name="CUDA_Runtime_jll")
+        end
+        if Base.thisminor(CUDA_VERSION) == v"10.2"
+            Pkg.add(name="CUDNN_jll", version="8.2.4")
+        end
+      '
     timeout_in_minutes: 60
