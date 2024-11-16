@@ -13,16 +13,18 @@ end
 const ∇conv_bias = cudnn_convolution_backward_bias
 
 function ∇conv_data(dy::AbstractArray, w::Tensor{T},
-                    cdims::DenseConvDims{M,K,C_in,C_out,S,P,D,F};
+                    cdims::DenseConvDims{M,K,S,P,D};
                     groups = 1,
                     benchmark = 0,
-                    deterministic = 0) where {M,K,C_in,C_out,S,P,D,F, T}
+                    deterministic = 0,
+                    allow_tf32 = 0) where {M,K,S,P,D,T}
 
   ptr = Ref(Ptr{Cvoid}())
   dy_ = tensor(dy, dev = on(w))
-  padding          = [P[1];P[3]]
-  stride           = collect(S)
-  dilation         = collect(D)
+  padding          = NNlib.padding(cdims)
+  padding          = [padding[1];padding[3]]
+  stride           = collect(NNlib.stride(cdims))
+  dilation         = collect(NNlib.dilation(cdims))
 
   s = reverse([NNlib.input_size(cdims)...,
                NNlib.channels_in(cdims),
@@ -34,21 +36,23 @@ function ∇conv_data(dy::AbstractArray, w::Tensor{T},
                                        padding,  length(padding),
                                        stride,   length(stride),
                                        dilation, length(dilation),
-                                       groups, benchmark, deterministic)
+                                       groups, benchmark, deterministic, allow_tf32)
   Tensor{T,ndims(dy_)}(ptr[], on(dy_))
 end
 
 function ∇conv_filter(w::Tensor{T}, dy::AbstractArray{T},
-                      cdims::DenseConvDims{M,K,C_in,C_out,S,P,D,F};
+                      cdims::DenseConvDims{M,K,S,P,D};
                       groups = 1,
                       benchmark = 0,
-                      deterministic = 0) where {M,K,C_in,C_out,S,P,D,F, T}
+                      deterministic = 0,
+                      allow_tf32 = 0) where {M,K,S,P,D,T}
 
   dy_ = tensor(dy, dev = on(w))
   ptr = Ref(Ptr{Cvoid}())
-  padding          = [P[1];P[3]]
-  stride           = collect(S)
-  dilation         = collect(D)
+  padding          = NNlib.padding(cdims)
+  padding          = [padding[1];padding[3]]
+  stride           = collect(NNlib.stride(cdims))
+  dilation         = collect(NNlib.dilation(cdims))
 
   s = reverse([NNlib.kernel_size(cdims)...,
                NNlib.channels_in(cdims),
@@ -60,7 +64,7 @@ function ∇conv_filter(w::Tensor{T}, dy::AbstractArray{T},
                                         padding,  length(padding),
                                         stride,   length(stride),
                                         dilation, length(dilation),
-                                        groups, benchmark, deterministic)
+                                        groups, benchmark, deterministic, allow_tf32)
 
   Tensor{T,ndims(dy_)}(ptr[], on(dy_))
 end
@@ -73,9 +77,10 @@ function NNlib.∇maxpool(dy::AbstractArray{T}, y::Tensor{T,M}, x::Tensor{T,M},
   dy_ = tensor(dy, dev = on(y))
   ptr = Ref(Ptr{Cvoid}())
   kernel = collect(NNlib.kernel_size(pdims))
-  stride = collect(S)
-  padding = Int[P[1];P[3]]
-  dilation = collect(D)
+  stride = collect(NNlib.stride(pdims))
+  padding = NNlib.padding(pdims)
+  padding = Int[padding[1];padding[3]]
+  dilation = collect(NNlib.dilation(pdims))
   atg_max_pool2d_with_indices_backward(ptr, dy_.ptr, x.ptr,
                           kernel, length(kernel),
                           stride, length(stride),
@@ -105,8 +110,9 @@ function NNlib.∇meanpool(dy::AbstractArray, y::Tensor{T,M}, x::Tensor{T,M},
   ptr = Ref(Ptr{Cvoid}())
   dy_ = dy isa Base.ReshapedArray ? reshape(parent(dy), dy.dims...) : tensor(dy, dev = on(y))
   kernel = collect(NNlib.kernel_size(pdims))
-  stride = collect(S)
-  padding = [P[1];P[3]]
+  stride = collect(NNlib.stride(pdims))
+  padding = NNlib.padding(pdims)
+  padding = [padding[1];padding[3]]
 
   atg_avg_pool2d_backward(ptr,
                           dy_.ptr, x.ptr,
@@ -137,7 +143,8 @@ function ∇leaky_relu(dy::AbstractArray, x::Tensor{T,N}, slope) where {T,N}
   ptr = Ref(Ptr{Cvoid}())
 
   dy_ = tensor(dy, dev = on(x))
-  atg_leaky_relu_backward(ptr, dy_.ptr, x.ptr, Scalar(slope).ptr)
+  self_is_result = 0
+  atg_leaky_relu_backward(ptr, dy_.ptr, x.ptr, Scalar(slope).ptr, self_is_result)
   Tensor{T,N}(ptr[], on(x))
 end
 

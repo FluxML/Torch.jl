@@ -1,9 +1,12 @@
 const options = Dict(
-  Float32 => 6,
+  Int32 => 3,
   Int64 => 4,
+  Float32 => 6,
   Float64 => 7,)
 
-at_grad_set_enabled(0)
+let was_enabled = Ref{Int32}()
+  at_grad_set_enabled(was_enabled, 0)
+end
 
 struct TorchGPUOOMError <: Exception end
 

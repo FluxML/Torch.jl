@@ -1,6 +1,6 @@
 module Torch
 
-using Torch_jll
+using TorchCAPI_jll
 
 export Tensor, tensor, Scalar
 
@@ -42,11 +42,12 @@ include("utils.jl")
   function Flux.Zygote.accum(t1::Tensor, t2::Tensor{T,N}) where {T,N}
     ptr = Ref(Ptr{Cvoid}())
 
-    Torch.atg_add_(ptr, t1.ptr, t2.ptr)
+    Torch.Wrapper.atg_add_(ptr, t1.ptr, t2.ptr)
     Tensor{T,N}(ptr[], Torch.on(t1))
   end
 
-  eval(:(Flux.Zygote.@nograd Torch.at_copy_data))
+  eval(:(Flux.Zygote.@nograd Torch.Wrapper.at_copy_data))
+  eval(:(Flux.Zygote.@nograd Torch.Wrapper.at_dim))
   torch(x) = Flux.fmap(to_tensor, x)
 end
 

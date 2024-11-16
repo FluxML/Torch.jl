@@ -1,7 +1,7 @@
 [general]
-library_name = "libdoeye_caml"
+library_name = "libtorch_c_api"
 output_file_path = "../../src/wrapper.jl"
 prologue_file_path = "./prologue.jl"
 module_name = "Wrapper"
-jll_pkg_name = "Torch_jll"
+jll_pkg_name = "TorchCAPI_jll"
 export_symbol_prefixes = ["at"]

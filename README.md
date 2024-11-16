@@ -1,11 +1,22 @@
 # Torch.jl
+
 Sensible extensions for exposing torch in Julia.
 
 This package is aimed at providing the `Tensor` type, which offloads all computations over to [ATen](https://pytorch.org/cppdocs/), the foundational tensor library for PyTorch, written in C++.
 
-**Note:**
-* Needs a machine with a CUDA GPU (CUDA 10.1 or above)
-  * will need lazy artifacts function without a GPU
+## Supported platforms
+
+| **Operating System** | **Architecture** | **Acceleration Runtime** |
+| --- | --- | --- |
+| macOS | aarch64 | - |
+| macOS | x86_64 | - |
+| Linux (glibc) | aarch64 | - |
+| Linux (glibc) | x86_64 | CUDA 10.2 |
+| Linux (glibc) | x86_64 | CUDA 11.3 |
+
+Windows support is pending, cf. [issue #26](https://github.com/FluxML/Torch.jl/issues/26).
+
+The binary dependencies are available for Linux (glibc) on i686 (32-bit), but not all tests run succesfully.
 
 ## Quick Start
 
@@ -25,7 +36,7 @@ julia> using Pkg; Pkg.add("Torch");
 using Metalhead, Metalhead.Flux, Torch
 using Torch: torch
 
-resnet = ResNet()
+resnet = ResNet(18)
 ```
 
 We can move our object over to Torch via a simple call to `torch`
@@ -64,9 +75,9 @@ end
 ## Contributing and Issues
 
 Please feel free to open issues you might encounter in the issue tracker.
-I would also appreciate contributions through PRs toward corrections, increased
-coverage, docs, etc. Testing currently runs on Linux, but that can be expanded
-as need arises.
+Contributions through PRs toward corrections, increased
+coverage, docs, etc. are most welcome.
 
 ## Acknowledgements
-Takes a lot of inspiration from existing such projects - ocaml-torch for generating the wrappers.
+
+Takes a lot of inspiration from existing such projects, in particular [ocaml-torch](https://github.com/LaurentMazare/ocaml-torch), and [tch-rs](https://github.com/LaurentMazare/tch-rs).

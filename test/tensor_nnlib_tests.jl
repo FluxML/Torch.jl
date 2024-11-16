@@ -2,6 +2,11 @@ using Test
 using NNlib
 using Torch: tensor
 
+if Torch.cuda_is_available() && Torch.cudnn_is_available() && Torch.cuda_device_count() > 0
+    torch_device = 0 # GPU 0
+else
+    torch_device = -1 # CPU
+end
 
 @testset "DepthwiseConv" begin
     for kernel_width in [1, 3, 5],
@@ -15,8 +20,8 @@ using Torch: tensor
             width in [5, 7]
 
             test_input = rand(-9.0f0:9.0f0, height, width, in_channels, 1)
-            x = tensor(test_input, dev = 0)
-            w = tensor(kernel, dev = 0)
+            x = tensor(test_input, dev = torch_device)
+            w = tensor(kernel, dev = torch_device)
 
             expected_output = NNlib.depthwiseconv(test_input, kernel, pad = (0,0), stride = (1,1 ), dilation = (1, 1), flipped = true)
             test_output = NNlib.depthwiseconv(x, w, pad = (0,0), stride = (1,1 ), dilation = (1, 1))
@@ -44,8 +49,8 @@ end
 
             test_input = zeros(Float32, height, width, in_channels, 1)
             test_input[(height + 1) ÷ 2, (width + 1) ÷ 2, 1, 1] = 1
-            x = tensor(test_input, dev = 0)
-            w = tensor(kernel, dev = 0)
+            x = tensor(test_input, dev = torch_device)
+            w = tensor(kernel, dev = torch_device)
 
             cdims = NNlib.DenseConvDims(size(test_input),
                                         size(kernel),
@@ -81,8 +86,8 @@ end
             sz_in = [height, width, in_channels, 1]
             test_input = reshape(1.0f0:prod(sz_in), height, width, in_channels, 1)
             test_input = collect(test_input)
-            x = tensor(test_input, dev = 0)
-            w = tensor(kernel, dev = 0)
+            x = tensor(test_input, dev = torch_device)
+            w = tensor(kernel, dev = torch_device)
 
             cdims = NNlib.DenseConvDims(size(test_input),
                                         size(kernel),
@@ -124,8 +129,8 @@ end
             sz_in = [height, width, in_channels, 1]
             test_input = reshape(1.0f0:prod(sz_in), height, width, in_channels, 1)
             test_input = collect(test_input)
-            x = tensor(test_input, dev = 0)
-            w = tensor(kernel, dev = 0)
+            x = tensor(test_input, dev = torch_device)
+            w = tensor(kernel, dev = torch_device)
 
             cdims = NNlib.DenseConvDims(size(test_input),
                                         size(kernel),
@@ -163,7 +168,7 @@ end
             channels in 1:2
 
             test_input = rand(0.0f0:9.0f0, height, width, channels, 1)
-            x = tensor(test_input, dev = 0)
+            x = tensor(test_input, dev = torch_device)
 
             pdims = NNlib.PoolDims(size(test_input),
                                    (row_span, column_span),
@@ -187,7 +192,7 @@ end
         channels in 1:3
 
         test_input = rand(-9.0f0:9.0f0, height, width, channels, 1)
-        x = tensor(test_input, dev = 0)
+        x = tensor(test_input, dev = torch_device)
 
         if fn == NNlib.softmax
             expected_output = fn(test_input, dims = 3)
