@@ -22,11 +22,11 @@ function rewrite!(e::Expr)
 end
 
 function rewrite!(e::Expr, ::Val{:function})
-    rewrite!(e.args[2], Val(e.args[2].head))
+    return rewrite!(e.args[2], Val(e.args[2].head))
 end
 
 function rewrite!(e::Expr, ::Val{:block})
-    e.args[1] = Expr(:macrocall, Symbol("@runtime_error_check"), nothing, e.args[1])
+    return e.args[1] = Expr(:macrocall, Symbol("@runtime_error_check"), nothing, e.args[1])
 end
 
 function rewrite!(dag::ExprDAG)

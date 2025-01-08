@@ -1,5 +1,6 @@
 style = "blue"
 
 ignore = ["src/Wrapper.jl"]
+pipe_to_function_call = false
 whitespace_in_kwargs = true
 whitespace_typedefs = true
