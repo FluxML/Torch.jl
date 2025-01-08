@@ -1,6 +1,6 @@
 [general]
 library_name = "libtorch_c_api"
-output_file_path = "../../src/wrapper.jl"
+output_file_path = "../../src/Wrapper.jl"
 prologue_file_path = "./prologue.jl"
 module_name = "Wrapper"
 jll_pkg_name = "TorchCAPI_jll"

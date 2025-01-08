@@ -13,7 +13,7 @@ using FillArrays
 
 TURN_ON_LOGGING = false
 
-include("wrapper.jl")
+include("Wrapper.jl")
 
 using .Wrapper
 
