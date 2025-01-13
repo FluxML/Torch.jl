@@ -15,7 +15,7 @@ end
     tresnet = Flux.fmap(x -> Torch.to_tensor(x; dev = torch_device), resnet.layers)
 
     ip = rand(Float32, 224, 224, 3, 1) # An RGB Image
-    tip = tensor(ip, dev = torch_device)
+    tip = tensor(ip; dev = torch_device)
 
     top = tresnet(tip)
     op = resnet.layers(ip)

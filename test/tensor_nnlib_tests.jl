@@ -16,22 +16,28 @@ end
 
         kernel = rand(-9.0f0:9.0f0, kernel_height, kernel_width, 1, in_channels)
 
-        for height in [5, 6],
-            width in [5, 7]
-
+        for height in [5, 6], width in [5, 7]
             test_input = rand(-9.0f0:9.0f0, height, width, in_channels, 1)
-            x = tensor(test_input, dev = torch_device)
-            w = tensor(kernel, dev = torch_device)
+            x = tensor(test_input; dev = torch_device)
+            w = tensor(kernel; dev = torch_device)
 
-            expected_output = NNlib.depthwiseconv(test_input, kernel, pad = (0,0), stride = (1,1 ), dilation = (1, 1), flipped = true)
-            test_output = NNlib.depthwiseconv(x, w, pad = (0,0), stride = (1,1 ), dilation = (1, 1))
+            expected_output = NNlib.depthwiseconv(
+                test_input,
+                kernel;
+                pad = (0, 0),
+                stride = (1, 1),
+                dilation = (1, 1),
+                flipped = true,
+            )
+            test_output = NNlib.depthwiseconv(
+                x, w; pad = (0, 0), stride = (1, 1), dilation = (1, 1)
+            )
 
             test_output = Array(test_output)
             @test maximum(abs.(test_output - expected_output)) < 1e3 * eps(Float32) # Numerical accuracy adjusted wrt. CI
         end
     end
 end
-
 
 @testset "Conv with padding" begin
     for kernel_width in [1, 2, 3, 5],
@@ -40,34 +46,35 @@ end
         out_channels in [1, 2]
 
         num_coefficients = (kernel_width * kernel_height * in_channels * out_channels)
-        kernel = reshape(1.0f0:num_coefficients, kernel_height, kernel_width, in_channels, out_channels)
+        kernel = reshape(
+            1.0f0:num_coefficients, kernel_height, kernel_width, in_channels, out_channels
+        )
         kernel = collect(kernel)
         pad = size(kernel)[1:2] .÷ 2
 
-        for height in [1, 2, 3, 4],
-            width in [1, 2, 3, 5]
-
+        for height in [1, 2, 3, 4], width in [1, 2, 3, 5]
             test_input = zeros(Float32, height, width, in_channels, 1)
             test_input[(height + 1) ÷ 2, (width + 1) ÷ 2, 1, 1] = 1
-            x = tensor(test_input, dev = torch_device)
-            w = tensor(kernel, dev = torch_device)
+            x = tensor(test_input; dev = torch_device)
+            w = tensor(kernel; dev = torch_device)
 
-            cdims = NNlib.DenseConvDims(size(test_input),
-                                        size(kernel),
-                                        stride=(1, 1),
-                                        padding=pad,
-                                        dilation=(1, 1),
-                                        flipkernel = true)
+            cdims = NNlib.DenseConvDims(
+                size(test_input),
+                size(kernel);
+                stride = (1, 1),
+                padding = pad,
+                dilation = (1, 1),
+                flipkernel = true,
+            )
 
             expected_output = NNlib.conv(test_input, kernel, cdims)
-            test_output     = NNlib.conv(x,          w,      cdims)
+            test_output = NNlib.conv(x, w, cdims)
 
             test_output = Array(test_output)
             @test maximum(abs.(test_output - expected_output)) < 1e6 * eps(Float32) # Numerical accuracy adjusted wrt. CI
         end
     end
 end
-
 
 @testset "Conv with stride" begin
     for kernel_width in [1, 3, 4],
@@ -80,31 +87,30 @@ end
         kernel = fill(1.0f0, kernel_height, kernel_width, in_channels, out_channels)
         kernel = collect(kernel)
 
-        for height in 13:(13 + row_stride - 1),
-            width in 15:(15 + column_stride - 1)
-
+        for height in 13:(13 + row_stride - 1), width in 15:(15 + column_stride - 1)
             sz_in = [height, width, in_channels, 1]
             test_input = reshape(1.0f0:prod(sz_in), height, width, in_channels, 1)
             test_input = collect(test_input)
-            x = tensor(test_input, dev = torch_device)
-            w = tensor(kernel, dev = torch_device)
+            x = tensor(test_input; dev = torch_device)
+            w = tensor(kernel; dev = torch_device)
 
-            cdims = NNlib.DenseConvDims(size(test_input),
-                                        size(kernel),
-                                        stride=(row_stride, column_stride),
-                                        padding=(0, 0),
-                                        dilation=(1, 1),
-                                        flipkernel = true)
+            cdims = NNlib.DenseConvDims(
+                size(test_input),
+                size(kernel);
+                stride = (row_stride, column_stride),
+                padding = (0, 0),
+                dilation = (1, 1),
+                flipkernel = true,
+            )
 
             expected_output = NNlib.conv(test_input, kernel, cdims)
-            test_output     = NNlib.conv(x,          w,      cdims)
+            test_output = NNlib.conv(x, w, cdims)
 
             test_output = Array(test_output)
             @test maximum(abs.(test_output - expected_output)) < 1e4 * eps(Float32) # Numerical accuracy adjusted wrt. CI
         end
     end
 end
-
 
 @testset "Conv with dilation" begin
     for kernel_width in 1,
@@ -123,31 +129,30 @@ end
         kernel = fill(1.0f0, kernel_height, kernel_width, in_channels, out_channels)
         kernel = collect(kernel)
 
-        for height in 13:(13 + row_stride - 1),
-            width in [1]
-
+        for height in 13:(13 + row_stride - 1), width in [1]
             sz_in = [height, width, in_channels, 1]
             test_input = reshape(1.0f0:prod(sz_in), height, width, in_channels, 1)
             test_input = collect(test_input)
-            x = tensor(test_input, dev = torch_device)
-            w = tensor(kernel, dev = torch_device)
+            x = tensor(test_input; dev = torch_device)
+            w = tensor(kernel; dev = torch_device)
 
-            cdims = NNlib.DenseConvDims(size(test_input),
-                                        size(kernel),
-                                        stride=(row_stride, column_stride),
-                                        padding=(0, 0),
-                                        dilation=(1, 1),
-                                        flipkernel = true)
+            cdims = NNlib.DenseConvDims(
+                size(test_input),
+                size(kernel);
+                stride = (row_stride, column_stride),
+                padding = (0, 0),
+                dilation = (1, 1),
+                flipkernel = true,
+            )
 
             expected_output = NNlib.conv(test_input, kernel, cdims)
-            test_output     = NNlib.conv(x,          w,      cdims)
+            test_output = NNlib.conv(x, w, cdims)
 
             test_output = Array(test_output)
             @test maximum(abs.(test_output - expected_output)) < 1e2 * eps(Float32) # Numerical accuracy adjusted wrt. CI
         end
     end
 end
-
 
 @testset "Pooling" begin
     for fn in (NNlib.maxpool, NNlib.meanpool),
@@ -168,22 +173,23 @@ end
             channels in 1:2
 
             test_input = rand(0.0f0:9.0f0, height, width, channels, 1)
-            x = tensor(test_input, dev = torch_device)
+            x = tensor(test_input; dev = torch_device)
 
-            pdims = NNlib.PoolDims(size(test_input),
-                                   (row_span, column_span),
-                                   padding=padding,
-                                   stride=(row_stride, column_stride))
+            pdims = NNlib.PoolDims(
+                size(test_input),
+                (row_span, column_span);
+                padding = padding,
+                stride = (row_stride, column_stride),
+            )
 
             expected_output = fn(test_input, pdims)
-            test_output     = fn(x,          pdims)
+            test_output = fn(x, pdims)
 
             test_output = Array(test_output)
             @test maximum(abs.(test_output - expected_output)) < 1e1 * eps(Float32)
         end
     end
 end
-
 
 @testset "Activations" begin
     for fn in (NNlib.relu, NNlib.tanh, NNlib.sigmoid, NNlib.leakyrelu, NNlib.softmax),
@@ -192,14 +198,14 @@ end
         channels in 1:3
 
         test_input = rand(-9.0f0:9.0f0, height, width, channels, 1)
-        x = tensor(test_input, dev = torch_device)
+        x = tensor(test_input; dev = torch_device)
 
         if fn == NNlib.softmax
-            expected_output = fn(test_input, dims = 3)
-            test_output     = fn(x, dims = 3)
+            expected_output = fn(test_input; dims = 3)
+            test_output = fn(x; dims = 3)
         else
             expected_output = fn.(test_input)
-            test_output     = fn(x)
+            test_output = fn(x)
         end
 
         test_output = Array(test_output)

@@ -1,5 +1,8 @@
 # Torch.jl
 
+[![Build Status](https://github.com/FluxML/Torch.jl/actions/workflows/CI.yaml/badge.svg?branch=master)](https://github.com/FluxML/Torch.jl/actions/workflows/CI.yaml?query=branch%3Amaster)
+[![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/JuliaDiff/BlueStyle)
+
 Sensible extensions for exposing torch in Julia.
 
 This package is aimed at providing the `Tensor` type, which offloads all computations over to [ATen](https://pytorch.org/cppdocs/), the foundational tensor library for PyTorch, written in C++.

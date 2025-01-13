@@ -8,8 +8,8 @@ else
 end
 
 @testset "Movement" begin
-    r = rand(Float32, 3,3)
-    tr = tensor(r, dev = torch_device)
+    r = rand(Float32, 3, 3)
+    tr = tensor(r; dev = torch_device)
     @test tr isa Tensor
     @test tr .* tr isa Tensor
 
